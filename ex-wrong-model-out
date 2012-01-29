@@ -1,0 +1,163 @@
+
+make-ldpc ex-wrong-model.pchk 1000 1800 1 evenboth 3 no4cycle
+Eliminated 19 cycles of length four by moving checks within column
+make-gen  ex-wrong-model.pchk ex-wrong-model.gen dense
+Number of 1s per check in Inv(A) X B is 318.6
+rand-src  ex-wrong-model.src 1 800x1000
+encode    ex-wrong-model.pchk ex-wrong-model.gen ex-wrong-model.src \
+          ex-wrong-model.enc
+Encoded 1000 blocks, source block size 800, encoded block size 1800
+
+# FIRST SET OF TESTS, TRANSMITTING THROUGH AWGN CHANNEL WITH SIGMA=0.90
+
+transmit  ex-wrong-model.enc ex-wrong-model.rec 1 awgn 0.90
+Transmitted 1800000 bits
+
+# DECODING WITH CORRECT AWGN NOISE MODEL, SIGMA=0.90
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.90 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 910 valid.  Average 25.8 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 90, with src errs 89, both 89
+Bit error rate (on message bits only): 6.484e-03
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.95
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.95 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 909 valid.  Average 25.7 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 91, with src errs 91, both 91
+Bit error rate (on message bits only): 6.540e-03
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.85
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.85 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 900 valid.  Average 27.7 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 100, with src errs 100, both 100
+Bit error rate (on message bits only): 7.604e-03
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.40
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.40 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 755 valid.  Average 42.3 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 245, with src errs 245, both 245
+Bit error rate (on message bits only): 1.884e-02
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.45
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.45 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 827 valid.  Average 34.7 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 173, with src errs 172, both 172
+Bit error rate (on message bits only): 1.306e-02
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.50
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.50 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 849 valid.  Average 31.7 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 151, with src errs 151, both 151
+Bit error rate (on message bits only): 1.069e-02
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.55
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.55 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 855 valid.  Average 32.3 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 145, with src errs 145, both 145
+Bit error rate (on message bits only): 1.022e-02
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.60
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.60 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 790 valid.  Average 40.0 iterations, 13% bit changes
+Block counts: tot 1000, with chk errs 210, with src errs 210, both 210
+Bit error rate (on message bits only): 1.452e-02
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.65
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.65 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 540 valid.  Average 63.3 iterations, 11% bit changes
+Block counts: tot 1000, with chk errs 460, with src errs 460, both 460
+Bit error rate (on message bits only): 3.247e-02
+
+# SECOND SET OF TESTS, TRANSMITTING THROUGH AWLN CHANNEL WITH WIDTH=0.50
+
+transmit  ex-wrong-model.enc ex-wrong-model.rec 1 awln 0.50
+Transmitted 1800000 bits
+
+# DECODING WITH CORRECT AWLN NOISE MODEL, WIDTH=0.50
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.50 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 914 valid.  Average 25.1 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 86, with src errs 86, both 86
+Bit error rate (on message bits only): 6.130e-03
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.55
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.55 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 907 valid.  Average 25.6 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 93, with src errs 93, both 93
+Bit error rate (on message bits only): 6.474e-03
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.45
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.45 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 893 valid.  Average 27.5 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 107, with src errs 107, both 107
+Bit error rate (on message bits only): 7.744e-03
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.80
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.80 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 702 valid.  Average 44.9 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 298, with src errs 298, both 298
+Bit error rate (on message bits only): 2.245e-02
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.85
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.85 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 765 valid.  Average 39.4 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 235, with src errs 235, both 235
+Bit error rate (on message bits only): 1.693e-02
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.90
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.90 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 808 valid.  Average 35.7 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 192, with src errs 192, both 192
+Bit error rate (on message bits only): 1.374e-02
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.95
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.95 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 814 valid.  Average 34.6 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 186, with src errs 186, both 186
+Bit error rate (on message bits only): 1.291e-02
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=1.00
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 1.00 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 808 valid.  Average 35.6 iterations, 12% bit changes
+Block counts: tot 1000, with chk errs 192, with src errs 192, both 192
+Bit error rate (on message bits only): 1.320e-02
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=1.05
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 1.05 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+Decoded 1000 blocks, 771 valid.  Average 40.7 iterations, 11% bit changes
+Block counts: tot 1000, with chk errs 229, with src errs 228, both 228
+Bit error rate (on message bits only): 1.524e-02

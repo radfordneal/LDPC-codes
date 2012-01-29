@@ -1,0 +1,348 @@
+<HTML><HEAD>
+
+<TITLE> Creating a Parity Check Matrix </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Creating a Parity Check Matrix </H1>
+
+<P>This software deals only with linear block codes for binary (ie,
+modulo-2, GF(2)) vectors.  The set of valid codewords for a linear
+code can be specified by giving a <I>parity check matrix</I>,
+<B>H</B>, with <I>M</I> rows and <I>N</I> columns.  The valid
+codewords are the vectors, <B>x</B>, of length <I>N</I>, for which
+<B>Hx</B>=<B>0</B>, where all arithmetic is done modulo-2.  Each row
+of <B>H</B> represents a parity check on a subset of the bits in
+<B>x</B>; all these parity checks must be satisfied for <B>x</B> to be
+a codeword.  Note that the parity check matrix for a given code (ie,
+for a given set of valid codewords) is not unique, even after
+eliminating rows of <B>H</B> that are redundant because they are
+linear combinations of other rows.
+
+<P>This software stores parity check matrices in files in a sparse
+format.  These parity-check files are <I>not</I> human-readable
+(except by using the <A HREF="#print-pchk"><TT>print-pchk</TT></A>
+program).  However, they <I>are</I> readable on a machine with a
+different architecture than they were written on.
+
+<P>Some LDPC software by David MacKay and others uses the 
+<A HREF="http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html">alist
+format</A> for parity check matrices.  Two programs for converting
+between this format and the format for sparse parity check matrices
+used by this software are provided.
+
+
+<A NAME="ldpc"><H2>Methods for constructing LDPC codes</H2></A>
+
+<P>This software is primarily intended for experimentation with Low
+Density Parity Check (LDPC) codes.  These codes can be constructed by
+various methods, which generally involve some random selection of
+where to put 1s in a parity check matrix.  Any such method for
+constructing LDPC codes will have the property that it produces parity
+check matrices in which the number of 1s in a column is approximately
+the same (perhaps on average) for any size parity check matrix.  For a
+given code rate, these matrices therefore become increasingly sparse
+as the length of a codeword, and hence the number of parity checks,
+increases.
+
+<P>Many methods for constructing LDPC matrices are described in the
+<A HREF="refs.html">references</A>.  Two simple methods are currently
+implemented by this software, both of which operate according to the
+following scheme:
+<OL>
+<LI> Create a preliminary parity check matrix by one of the methods.
+<LI> Add 1s to the parity check matrix in order to avoid rows that have no
+     1s in them, and hence are redundant, or which have only one 1 in them,
+     in which case the corresponding codeword bits will always be zero.
+     The places within such a row to add these 1s are selected randomly.
+<LI> If the preliminary parity check matrix constructed in step (1) had
+     an even number of 1s in each column, add further 1s to avoid the problem 
+     that this will cause the rows to add to zero, and hence at least
+     one check will be redundant.  Up to two 1s are added (since it is also
+     undesirable for the sum of the rows to have only one 1 in it), at 
+     positions selected randomly from the entire matrix.  However, the
+     number of 1s to add in this step is reduced by the number already added
+     in step (2).  (Note that although redundant checks are not disastrous, 
+     they are better avoided; see the discussion of <A HREF="dep-H.html">linear
+     dependence in parity check matrices</A>.)
+<LI> If requested, try to eliminate 
+     situations where a pair of columns both have 1s in a particular pair of 
+     rows, which correspond to cycles of length four in the factor graph of 
+     the parity check matrix.  When such a situation is detected, one of the
+     1s involved is moved randomly within its column.  This continues until
+     no such situations remain, or until 10 passes over all columns have
+     failed to eliminate all such situations.
+</OL>
+
+<P>The <I>evencol</I> method is the simplest way of performing step
+(1) of the above procedure.  For each column of the parity check
+matrix, independently, it places a specified number of 1s in positions
+selected uniformly at random, with the only constraint being that
+these 1s be in distinct rows.  Note that despite the name, the columns
+do not have to have the same number of 1s - a distribution over
+several values for the number of 1s in a column can be specified
+instead.  Such codes with different-weight columns are sometimes
+better than codes in which every column has the same weight.
+
+<P>The <I>evenboth</I> method also puts a specified number of 1s in
+each column, but it tries as well to keep the numbers of 1s in the
+rows approximately the same.  Initially, it creates indicators for all
+the 1s that will be required, and assigns these 1s to rows as evenly
+as it can, favouring earlier rows if an exactly even split is not
+possible.  It then assigns 1s to successive columns by selecting
+randomly, without replacement, from this initial supply of 1s, subject
+only to the constraint that the 1s assigned to a column must be in
+distinct rows.  If at some point it is impossible to put the required
+number of 1s in a column by picking from the 1s remaining, a 1 is set
+in that column without reference to other columns, creating a possible
+unevenness.  
+
+<P>Note that regardless of how evenly 1s are distributed in the
+preliminary parity check matrix created in step (1), steps (2) and (3)
+can make the numbers of 1s in the both rows and columns be uneven, and
+step (4), if done, can make the numbers of 1s in rows be uneven.
+
+
+<P><A NAME="make-pchk"><HR><B>make-pchk</B>: Make a parity check 
+matrix by explicit specification.
+
+<BLOCKQUOTE><PRE>
+make-pchk <I>pchk-file n-checks n-bits row</I>:<I>col ...</I>
+</PRE></BLOCKQUOTE>
+
+<P>Creates a file named <TT><I>pchk-file</I></TT> in
+which it stores a parity check matrix with <TT><I>n-checks</I></TT>
+rows and <TT><I>n-bits</I></TT> columns.  This parity check matrix
+consists of all 0s except for 1s at the <I>row</I>:<I>col</I>
+positions listed.  Rows and columns are numbered starting at zero.
+This program is intended primarily for testing and demonstration 
+purposes.  
+
+<P><B>Example:</B> The well-known Hamming code with codewords of
+length <I>N</I>=7 and with <I>M</I>=3 parity checks can be can be
+created as follows:
+<UL><PRE>
+<LI>make-pchk ham7.pchk 3 7 0:0 0:3 0:4 0:5 1:1 1:3 1:4 1:6 2:2 2:4 2:5 2:6
+</PRE></UL>
+
+
+<P><A NAME="alist-to-pchk"><HR><B>alist-to-pchk</B>: Convert a parity
+check matrix from alist format to the sparse matrix format used by
+this software.
+
+<BLOCKQUOTE><PRE>
+alist-to-pchk <I>alist-file pchk-file</I>
+</PRE></BLOCKQUOTE>
+
+<P>Converts a parity check matrix in 
+<A HREF="http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html">alist
+format</A> stored in the file named <TT><I>alist-file</I></TT> to 
+the sparse matrix format used by this software, storing it in the
+file named <TT><I>pchk-file</I></TT>.
+
+
+<P><A NAME="pchk-to-alist"><HR><B>pchk-to-alist</B>: Convert a parity
+check matrix to alist format.
+
+<BLOCKQUOTE><PRE>
+pchk-to-alist <I>pchk-file alist-file</I>
+</PRE></BLOCKQUOTE>
+
+<P>Converts a parity check matrix stored in the sparse matrix format
+used by this software, in the file named <TT><I>pchk-file</I></TT>, to
+the <A
+HREF="http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html">alist
+format</A>, storing it in the file named <TT><I>alist-file</I></TT>.
+
+
+<P><A NAME="print-pchk"><HR><B>print-pchk</B>: Print a parity check matrix.
+
+<BLOCKQUOTE><PRE>
+print-pchk [ -d ] [ -t ] <I>pchk-file</I>
+</PRE></BLOCKQUOTE>
+
+<P>Prints a human-readable representation of the parity check matrix stored
+in <TT><I>pchk-file</I></TT>.
+The <B>-d</B> option causes the matrix to be printed in a dense
+format, even though parity check matrices are always stored in the
+file in a sparse format.  If the <B>-t</B> option is present, what is
+printed is the transpose of the parity check matrix.
+
+<P>The sparse display format consists of one line for every row of the
+matrix, consisting of the row number, a colon, and the column numbers
+at which 1s are located (possibly none).  Row and columns numbers
+start at zero.  No attempt is made to wrap long lines.
+
+<P>The dense display is the obvious array of 0s and 1s.  Long lines
+are not wrapped.
+
+<P><B>Example</B>: The parity check matrix for the Hamming code created 
+by the example for <A HREF="#make-pchk"><TT>make-pchk</TT></A> would print 
+as follows:
+<UL><PRE>
+<LI>print-pchk ham7.pchk
+
+Parity check matrix in ham7.pchk (sparse format):
+
+0: 0 3 4 5
+1: 1 3 4 6
+2: 2 4 5 6
+
+<LI>print-pchk -d ham7.pchk
+
+Parity check matrix in ham7.pchk (dense format):
+
+ 1 0 0 1 1 1 0
+ 0 1 0 1 1 0 1
+ 0 0 1 0 1 1 1
+</PRE></UL>
+
+
+<P><A NAME="make-ldpc"><HR><B>make-ldpc</B>: Make a low density parity
+check matrix, by random generation.
+
+<BLOCKQUOTE><PRE>
+make-ldpc <I>pchk-file n-checks n-bits seed method</I>
+</PRE>
+<BLOCKQUOTE>
+where <TT><I>method</I></TT> is one of the following:
+<BLOCKQUOTE><PRE>
+evencol <I>checks-per-col</I> [ no4cycle ]
+
+evencol <I>checks-distribution</I> [ no4cycle ]
+
+evenboth <I>checks-per-col</I> [ no4cycle ]
+
+evenboth <I>checks-distribution</I> [ no4cycle ]
+</PRE></BLOCKQUOTE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+<P>Creates a Low Density Parity Check matrix with
+<TT><I>n-checks</I></TT> rows and <TT><I>n-bits</I></TT> columns.  The
+parity check matrix will be generated pseudo-randomly by the indicated
+method, using a pseudo-random number stream determined by <TT><I>seed</I></TT>.
+The actual random number seed used is 10 times <TT><I>seed</I></TT> plus 1,
+so as to avoid using the same stream as any of the other programs.
+
+<P>Two methods are currently available for creating the LDPC matrix,
+specified by <TT>evencol</TT> or <TT>evenboth</TT>.  Both methods
+produce a matrix in which the number of 1s in each column is
+approximately <TT><I>checks-per-col</I></TT>, or varies from column
+to column according the the <TT><I>checks-distribution</I></TT>.  
+The <TT>evenboth</TT> method also tries to make the number of checks per row be
+approximately uniform; if this is not achieved, a message saying that
+how many bits were placed unevenly is displayed on standard error.
+
+<P>For both methods, the <TT>no4cycle</TT> option will cause cycles of
+length four in the factor graph representation of the code to be
+eliminated (if possible).  A message is displayed on standard error if
+this is not achieved.
+
+<P>A <TT><I>checks-distribution</I></TT> has the form
+<BLOCKQUOTE><PRE>
+<I>prop</I>x<I>count</I>/<I>prop</I>x<I>count</I>/...
+</PRE></BLOCKQUOTE>
+Here, <TT><I>prop</I></TT> is a proportion of columns that have the 
+associated <TT><I>count</I></TT>.  The proportions need not sum to one,
+since they will be automatically normalized.  For example, <TT>0.3x4/0.2x5</TT>
+specifies that 60% of the columns will contain four 1s and 40% will 
+contain five 1s.
+
+<P>See the <A HREF="#ldpc">discussion above</A> for more details
+on how these methods construct LDPC matrices.
+
+<P><B>Example 1:</B> The <TT>make-ldpc</TT> command below creates 
+a 20 by 40 low density parity check matrix with three 1s per 
+column and six 1s per row, using random seed 1.  The matrix 
+is then printed in sparse format
+using <A HREF="#print-pchk">print-pchk</A>.
+<UL><PRE>
+<LI>make-ldpc ldpc.pchk 20 40 1 evenboth 3
+<LI>print-pchk ldpc.pchk
+
+Parity check matrix in ldpc.pchk (sparse format):
+
+ 0: 10 14 18 27 38 39
+ 1:  2  3  5 11 27 30
+ 2: 15 19 20 21 24 26
+ 3:  2  4 25 28 32 38
+ 4:  7  9 12 22 33 34
+ 5:  5  6 21 22 26 32
+ 6:  1  4 13 24 25 28
+ 7:  1 14 28 29 30 36
+ 8: 11 13 22 23 32 37
+ 9:  6  8 13 20 31 33
+10:  0  3 24 29 31 38
+11:  7 12 15 16 17 23
+12:  3 16 29 34 35 39
+13:  0  8 10 18 36 37
+14:  6 11 18 20 35 39
+15:  0  7 14 16 25 37
+16:  2  4  9 19 30 31
+17:  5  9 10 17 19 23
+18:  8 15 17 21 26 27
+19:  1 12 33 34 35 36
+</PRE></UL>
+
+<P><B>Example 2:</B> The two <TT>make-ldpc</TT> commands
+below both create a 20 by 40 low density parity check matrix with 30%
+of columns with two 1s, 60% of columns with three 1s, and 10% of
+columns with seven 1s.  The transpose of the parity check matrix
+is then printed in sparse format.
+<UL><PRE>
+<LI>make-ldpc ldpc.pchk 20 40 1 evenboth 0.3x2/0.6x3/0.1x7 
+<LI>make-ldpc ldpc.pchk 20 40 1 evenboth 3x2/6x3/1x7
+<LI>print-pchk -t ldpc.pchk
+
+Transpose of parity check matrix in ldpc.pchk (sparse format):
+
+ 0: 13 16
+ 1:  9 18
+ 2:  1 10
+ 3:  3 15
+ 4:  4 14
+ 5: 14 17
+ 6:  4  5
+ 7:  1  8
+ 8:  0  4
+ 9:  9 14
+10:  5  8
+11:  6 16
+12:  2 12 19
+13:  3 17 18
+14:  2 16 17
+15:  2 11 18
+16: 12 13 19
+17:  7 13 18
+18:  2  5 11
+19: 10 12 14
+20:  1  8 16
+21: 10 18 19
+22:  3  6 17
+23:  7 11 12
+24:  1  2 19
+25:  0  6  7
+26:  5  8 15
+27:  1  4  7
+28:  6 13 19
+29:  3  4 11
+30:  3  8 17
+31:  4  5  9
+32:  0 10 15
+33:  7 11 13
+34:  8 12 19
+35:  0  2 10
+36:  0  5  9 11 15 17 18
+37:  0  1  2  6  7 14 16
+38:  0  1  3  9 12 13 15
+39:  3  6  9 10 14 15 16
+</PRE></UL>
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>
+

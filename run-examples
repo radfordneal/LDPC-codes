@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Run all the examples, and check the output against the corresponding -out
+# file.  Note that slight differences are possible when the examples are
+# run on different machines, due to slightly different round-off errors.
+
+for e in `ls ex-* | grep -v "\\." | grep -v .-out` 
+do 
+  echo Running $e:
+  $e 2>&1 | diff ${e}-out -
+  echo " "
+done

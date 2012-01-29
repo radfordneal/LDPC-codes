@@ -1,0 +1,9 @@
+
+Creating sparse matrix.
+Converting from sparse to dense.
+Converting back to dense again.
+Testing for equality of two sparse matrices: OK.
+Converting to dense once again.
+Testing for equality of two dense matrices: OK.
+
+DONE WITH TESTS.

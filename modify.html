@@ -1,0 +1,125 @@
+<HTML><HEAD>
+
+<TITLE> Notes on Modifying the LDPC Programs </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Notes on Modifying the LDPC Programs </H1>
+
+<P>Here are a few notes on how to modify the programs to add new types of
+channel, new decoding procedures, etc.  You should also look at the <A
+HREF="modules.html">module documentation</A>.
+
+<H2> Adding a new type of channel </H2>
+
+<P>Channels are involved in two programs: 
+<A HREF="channel.html#transmit"><B>transmit</B></A> and 
+<A HREF="decoding.html#decode"><B>decode</B></A>.  
+Adding another type of memoryless channel should be straightforward.
+Adding a channel with memory may involve more work.  Here are the
+steps needed if no major reorganizations are required:
+<OL>
+<LI> Decide on a syntax for specifying the new channel type and its
+     parameters, and on an internal name for the channel type.  Add
+     the internal name as a possibility in the enumerated <TT>channel_type</TT>
+     declared in <A HREF="channel.h"><TT>channel.h</TT></A>.  You
+     may also need to declare new global variables to store parameters of
+     the channel in <A HREF="channel.h"><TT>channel.h</TT></A> and
+     <A HREF="channel.c"><TT>channel.c</TT></A>.
+<LI> Modify the <TT>channel_parse</TT> and 
+     <TT>channel_usage</TT> procedures in 
+     <A HREF="channel.c"><TT>channel.c</TT></A> to
+     parse the specification of the new channel and display an appropriate 
+     usage message.
+<LI> Decide on how the new channel's output is represented in a file
+     (eg, for an erasure channel, what the symbol for an erasure is), and
+     update <A HREF="transmit.c"><TT>transmit.c</TT></A> to write the
+     new channel's output for each transmitted bit, after randomly generating 
+     any noise (see
+     the <A HREF="rand.html">documentation on random number generation</A>).
+<LI> Modify <A HREF="decode.c"><TT>decode.c</TT></A> in three places to 
+     accommodate the new channel.  The three sections of code to modify
+     allocate space for data from the channel, read data from the channel,
+     and set likelihood ratios based on the data read.  The setting of 
+     likelihood ratios is based on the assumption that the channel is 
+     memoryless (ie, data received for different bits is independent).
+     Adding a channel with memory would require changing this assumption,
+     which would involve modifications to the decoding procedures too.
+<LI> Document the new channel type in <A HREF="channel.html">channel.html</A>
+     and <A HREF="decoding.html">decoding.html</A>.
+</OL>
+
+<H2> Adding a new decoding procedure </H2>
+
+A new decoding method can be implemented as follows:
+<OL>
+<LI> Decide on a syntax for specifying the method and its parameters,
+     using the trailing arguments to the 
+     <A HREF="decoding.html#decode"><TT>decode</TT></A> program.  Pick an
+     internal name for the method, and add it as a possibility in the
+     enumerated <TT>decoding_method</TT> type in 
+     <A HREF="dec.h"><TT>dec.h</TT></A>.  You may also need to declare
+     new variables for the method's parameters in 
+     <A HREF="dec.h"><TT>dec.h</TT></A> and <A HREF="dec.c"><TT>dec.c</TT></A>.
+<LI> Modify the argument parsing code in 
+     <A HREF="decode.c"><TT>decode.c</TT></A>
+     to handle specifications of the new method, and change the <TT>usage</TT>
+     procedure to display the syntax for specifying the new method.
+<LI> Write a setup procedure for your decoding method, putting it in 
+     <A HREF="dec.c"><TT>dec.c</TT></A>, with a declaration in 
+     <A HREF="dec.h"><TT>dec.h</TT></A>.  At a minimum, this procedure
+     should print headers for the table of detailed decoding information
+     when the <B>-T</B> option was specified.
+<LI> Write a decode procedure implementing your method, putting it in
+     <A HREF="dec.c"><TT>dec.c</TT></A>, with a declaration in 
+     <A HREF="dec.h"><TT>dec.h</TT></A>.  This procedure should output
+     detailed trace information when the <B>-T</B> option was specified.
+<LI> Modify <A HREF="decode.c"><TT>decode.c</TT></A> in the appropriate 
+     places to call the setup procedure and the decode procedure you wrote.
+<LI> Document the new decoding method in 
+     <A HREF="decoding.html">decoding.html</A> and 
+     <A HREF="decode-detail.html">decode-detail.html</A>.
+</OL>
+
+<H2> Adding a new method of making a low-density parity-check matrix </H2>
+
+<P>The <A HREF="pchk.html#make-ldpc"><B>make-ldpc</B></A> program can be
+changed to add a new method for generating a LDPC code by modifying
+<A HREF="make-ldpc.c"><TT>make-ldpc.c</TT></A>.  A radically different
+method might better be implemented by writing a new program of similar
+structure.
+
+
+<H2> Adding a new encoding method </H2>
+
+<P>A new heuristic for finding a sparse LU decomposition can be
+implemented by changing <A HREF="make-gen.c">make-gen.c</A> to allow
+the new heuristic to be specified on the command line, changing the <A
+HREF="mod2sparse.html#decomp"><B>mod2sparse_decomp</B></A> procedure
+in <A HREF="mod2sparse.c"><TT>mod2sparse.c</TT></A> to implement the
+heuristic, and documenting the new heuristic in <A
+HREF="encoding.html">encoding.html</A>, <A
+HREF="sparse-LU.html">sparse-LU.html</A>, and <A
+HREF="mod2sparse.html">mod2sparse.html</A>.
+
+<P>To implement a completely new encoding method, you will first need
+to define a new file format for a generator matrix, modify <A
+HREF="make-gen.c">make-gen.c</A> appropriately to write out this new
+format, and modify the <TT>read_gen</TT> procedure in <A
+HREF="rcode.c"><TT>rcode.c</TT></A> to read this format.  You will
+need to implement the new method in a procedure in <A
+HREF="enc.c">enc.c</A>, and modify <A HREF="encode.c">encode.c</A> so
+that it will call this new procedure when the new method is used.  The
+<TT>enum_decode</TT> procedure in <A HREF="dec.c">dec.c</A> will also
+need to be modified so it can call the new encoding method.  Finally,
+you should document the new method in <A
+HREF="encoding.html">encoding.html</A>
+
+<P>
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

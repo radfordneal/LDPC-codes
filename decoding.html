@@ -1,0 +1,337 @@
+<HTML><HEAD>
+
+<TITLE> Decoding Received Blocks </TITLE>
+
+
+</HEAD><BODY>
+
+<H1> Decoding Received Blocks </H1>
+
+Transmitted codewords are decoded from the received data on the basis
+of the <I>likelihood</I> of the possible codewords, which is the
+probability of receiving the data that was actually received if the
+codeword is question were the one that was sent.  This software
+presently deals only with memoryless channels, in which the noise is
+independent from bit to bit.  For such a channel, the likelihood
+factorizes into a product of likelihoods for each bit.  
+
+For decoding purposes, all that matters is the relative likelihood
+for a bit to be 1 versus 0.  This is captured by the <I>likelihood
+ratio</I> in favour of a 1, which is P(data | bit is 1) / P(data |
+bit is 0).  
+
+<P>For a Binary Symmetric Channel with error probability <I>p</I>, 
+the likelihood ratio in favour of a 1 bit is as follows:
+<BLOCKQUOTE>
+  If the received data was +1: (1-<I>p</I>) / <I>p</I><BR>
+  If the received data was -1: <I>p</I> / (1-<I>p</I>)
+</BLOCKQUOTE>
+For an Additive White Gaussian Noise channel, with signals of +1 for a 1 bit
+and or -1 for a 0 bit, and with noise standard deviation <I>s</I>, the
+likelihood ratio in favour of a 1 bit when data <I>y</I> was received is
+<BLOCKQUOTE>
+  exp ( 2y / s<SUP><SMALL>2</SMALL></SUP> )
+</BLOCKQUOTE>
+For an Additive White Logistic Noise channel, the corresponding
+likelihood ratio is
+<I>d</I><SUB><SMALL>1</SMALL></SUB>/<I>d</I><SUB><SMALL>0</SMALL></SUB>,
+where
+<I>d</I><SUB><SMALL>1</SMALL></SUB>=<I>e</I><SUB><SMALL>1</SMALL></SUB>
+/ (1+<I>e</I><SUB><SMALL>1</SMALL></SUB>)<SUP><SMALL>2</SMALL></SUP> and
+<I>d</I><SUB><SMALL>0</SMALL></SUB>=<I>e</I><SUB><SMALL>0</SMALL></SUB>
+/ (1+<I>e</I><SUB><SMALL>0</SMALL></SUB>)<SUP><SMALL>2</SMALL></SUP>,
+with <I>e</I><SUB><SMALL>1</SMALL></SUB>=exp(-(<I>y</I>-1)/<I>w</I>) and
+<I>e</I><SUB><SMALL>0</SMALL></SUB>=exp(-(<I>y</I>+1)/<I>w</I>).
+<BLOCKQUOTE> </BLOCKQUOTE>
+
+<P>It is usual to consider codewords to be equally likely <I>a
+priori</I>.  This is reasonable if the source messages are all equally
+likely (any source redundancy being ignored, or remove by a
+preliminary data compression stage), provided that the mapping from
+source messages to codewords is onto.  Decoding can then be done using
+only the parity check matrix defining the codewords, without reference
+to the generator matrix defining the mapping from source messages to
+codewords.  Note that the condition that this mapping be onto isn't
+true with this software in the atypical case where the code is defined
+by a parity check matrix with redundant rows; see the discussion of <A
+HREF="dep-H.html">linear dependence in parity check matrices</A>.
+This minor complication is mostly ignored here, except by the exhaustive
+enumeration decoding methods.
+
+<P>Assuming equal <I>a priori</I> probabilities for codewords, the
+probability of correctly decoding an entire codeword is minimized by
+picking the codeword with the highest likelihood.  One might instead
+wish to decode each bit to the value that is most probable.  This
+minimizes the bit error rate, but is not in general guaranteed to lead
+a decoding for each block to the most probable complete codeword;
+indeed, the decoding may not be a codeword at all.  Minimizing the bit
+error rate seems nevertheless to be the most sensible objective,
+unless block boundaries have some significance in a wider context.
+
+<P>Optimal decoding by either criterion is infeasible for general
+linear codes when messages are more than about 20 or 30 bits in
+length.  The fundamental advantage of Low Density Parity Check codes
+is that good (though not optimal) decodings can be obtained by methods
+such as probability propagation, described next.
+
+<A NAME="prprp"><H2>Decoding by probability propagation</H2></A>
+
+<P>The probability propagation algorithm was originally devised by
+Robert Gallager in the early 1960's and later reinvented by David
+MacKay and myself.  It can be seen as an instance of the sum-product
+algorithm for inference on factor graphs, and as an instance of belief
+propagation in probabilistic networks.  See the <A
+HREF="refs.html">references</A> for details.  Below, I give a fairly
+intuitive description of the algorithm.
+
+<P>The algorithm uses only the parity check matrix for the code, whose
+columns correspond to codeword bits, and whose rows correspond to
+parity checks, and the likelihood ratios for the bits derived from the
+data.  It aims to find the probability of each bit of the transmitted
+codeword being 1, though the results of the algorithm are in general
+only approximate.
+
+<P>The begin, information about each bit of the codeword derived from
+the received data for that bit alone is expressed as a <I>probability
+ratio</I>, the probability of the bit being 1 divided by the
+probability of the bit being 0.  This probability ratio is equal to
+the likelihood ratio (see above) for that bit, since 0 and 1 are
+assumed to be equally likely <I>a priori</I>.  As the algorithm
+progresses, these probability ratios will be modified to take account
+of information obtained from other bits, in conjunction with the
+requirement that the parity checks be satisfied.  To avoid double
+counting of information, for every bit, the algorithm maintains a
+separate probability ratio for each parity check that that bit
+participates in, giving the probability for that bit to be 1 versus 0
+based only on information derived from <I>other</I> parity checks,
+along with the data received for the bit.
+
+<P>For each parity check, the algorithm maintains separate
+<I>likelihood ratios</I> (analogous to, but distinct from, the
+likelihood ratios based on received data), for every bit that
+participates in that parity check.  These ratios give the probability
+of that parity check being satisfied if the bit in question is 1
+divided by the probability of the check being satisfied if the bit is
+0, taking account of the probabilities of each of the <I>other</I>
+bits participating in this check being 1, as derived from the
+probability ratios for these bits with respect to this check.
+
+<P>The algorithm alternates between recalculating the likelihood
+ratios for each check, which are stored in the <B>lr</B> fields of the
+parity check matrix entries, and recalculating the probability ratios
+for each bit, which are stored in the <B>pr</B> fields of the entries
+in the sparse matrix representation of the parity check matrix.  (See
+the documentation on <A HREF="mod2sparse.html#rep">representation of
+sparse matrices</A> for details on these entries.)
+
+<P>Recalculating the likelihood ratio for a check with respect to some
+bit may appear time consuming, requiring that all possible
+combinations of values for the other bits participating in the check
+be considered.  Fortunately, there is a short cut.  One can calculate
+<BLOCKQUOTE>
+ <I>t</I> 
+ = product of [ 1 / (1+<I>p<SUB><SMALL>i</SMALL></SUB></I>) 
+              - <I>p<SUB><SMALL>i</SMALL></SUB></I> / 
+                      (1+<I>p<SUB><SMALL>i</SMALL></SUB></I>) ]
+ = product of [ 2 / (1+<I>p<SUB><SMALL>i</SMALL></SUB></I>) - 1 ]
+</BLOCKQUOTE>
+where the product is over the probability ratios
+<I>p<SUB><SMALL>i</SMALL></SUB></I> for the other bits participating
+in this check.  Factor <I>i</I> in this product is equal to probability
+of bit <I>i</I> being 0 minus the probability that it is 1.  The terms 
+in the expansion of this product (in the first form above) correspond to 
+possible combinations of values for the other bits, with the result that 
+<I>t</I> will be the probability of the check being satisfied if the bit 
+in question is 0 minus the probability if the bit in question is 1.  The 
+likelihood ratio for this check with respect to the bit in question can then 
+be calculated as (1-<I>t</I>)/(1+<I>t</I>).
+
+<P>For a particular check, the product above differs for different
+bits, with respect to which we wish to calculate a likelihood ratio,
+only in that for each bit the factor corresponding to that bit is left
+out.  We can calculate all these products easily by ordering the bits
+arbitrarily, computing running products of the factor for the first
+bit, the factors for the first two bits, etc., and also running
+products of the factor for the last bit, the factors for the last two
+bits, etc.  Multiplying the running product of the factors up to
+<I>i</I>-1 by the running product of the factors from <I>i</I>+1 on
+gives the product needed for bit <I>i</I>.  The second form of the 
+factors above is used, as it requires less computation, and is still
+well defined even if some ratios are infinite.
+
+<P>To recalculate the probability ratio for a bit with respect to a
+check, all that is need is to multiply together the likelihood ratio
+for this bit derived from the received data (see above), and the
+current values of the likelihood ratios for all the <I>other</I>
+checks that this bit participates in, with respect to this bit.  To
+save time, these products are computed by combining forward and 
+backward products, similarly to the method used for likelihood ratios.
+
+<P>By including likelihood ratios from all checks, a similar
+calculation produces the current probability ratio for the bit to be 1
+versus 0 based on all information that has propagated to the bit so
+far.  This ratio can be thresholded at one to produce the current best
+guess as to whether this bit is a 1 or a 0.
+
+<P>The hope is that this algorithm will eventually converge to a state
+where these bit probabilities give a near-optimal decoding.  This is
+does not always occur, but the algorithm behaves well enough to
+produce very good results at rates approaching (though not yet
+reaching) the theoretical Shannon limit.
+
+
+<P><A NAME="decode"><HR><B>decode</B>: Decode blocks of received data
+into codewords.
+
+<BLOCKQUOTE><PRE>
+decode [ -t | -T ] <I>pchk-file received-file decoded-file</I> [ <I>bp-file</I> ] <I>channel method</I>
+</PRE>
+<BLOCKQUOTE>
+where <TT><I>channel</I></TT> is one of:
+<BLOCKQUOTE><PRE>
+bsc <I>error-probability</I>
+
+awgn <I>standard-deviation</I>
+
+awln <I>width</I>
+</PRE></BLOCKQUOTE>
+and <TT><I>method</I></TT> is one of:
+<BLOCKQUOTE><PRE>
+enum-block <TT><I>gen-file</I></TT>
+
+enum-bit <TT><I>gen-file</I></TT>
+
+prprp <TT>[-]<I>max-iterations</I></TT>
+</PRE></BLOCKQUOTE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+<P>Decodes the blocks in <TT><I>received-file</I></TT>, which are
+assumed to be have been received through the specified channel.  The
+results written to <TT><I>decoded-file</I></TT> are the specified
+decoding method's guesses as to what bits were sent through the
+channel, given what was received.  The probability of each bit being a
+1, as judged by the decoding method being used, is written to
+<TT><I>bp-file</I></TT>, if given.
+
+<P>A newline is output at the end of each block written to
+<TT><I>decoded-file</I></TT> and <TT><I>bp-file</I></TT>.  Newlines in
+<TT><I>received-file</I></TT> are ignored.  A warning is displayed on
+standard error if the number of bits in <TT><I>received-file</I></TT>
+is not a multiple of the block length.
+
+<P>A summary is displayed on standard error, giving the total number
+of blocks decoded, the number of blocks that decoded to valid
+codewords, the average number of iterations of the decoding algorithm
+used, and the percent of bits that were changed from the values one
+would guess for them based just on their individual likelihood ratios.
+
+<P>If the <B>-t</B> option is given, a line of information regarding each block
+decoded is written to standard output, preceded by a line of headers.
+The information for each block is as follows:
+<BLOCKQUOTE>
+<TABLE>
+<tr align="left" valign="top">
+  <td> <B>block</B> </td> 
+  <td>The number of the block, from zero</td></tr>
+<tr align="left" valign="top">
+  <td> <B>iterations</B> </td> 
+  <td>The number of "iterations" used in decoding.  What exactly an iteration
+      is depends on the decoding method used (see 
+      <A HREF="decode-detail.html">here</A>).</td></tr>
+<tr align="left" valign="top">
+  <td> <B>valid</B> </td>
+  <td>Has the value 1 if the decoding is a valid codeword, 0 if not.</td></tr>
+<tr align="left" valign="top">
+  <td> <B>changed</B> </td>
+  <td>The number of bits in the decoding that differ from the bit that would
+      be chosen based just on the likelihood ratio for that bit.  Bits whose
+      likelihood ratios are exactly one contribute 0.5 to this count.</td></tr>
+</TABLE>
+</BLOCKQUOTE>
+The file produced is is suitable for 
+reading into the S-Plus or R statistics packages, with a command such as
+<BLOCKQUOTE><PRE>
+data <- read.table(<I>file</I>,header=T)
+</PRE></BLOCKQUOTE>
+
+<P>If instead the <B>-T</B> option is given, detailed information on
+the process of decoding each block will be written to standard output.
+For a description, see the <A HREF="decode-detail.html">documentation
+on detailed decoding trace information</A>.
+
+<P>The type of channel that is assumed is specified after the file
+name arguments.  This may currently be either <TT>bsc</TT> (or
+<TT>BSC</TT>) for the Binary Symmetric Channel, or <TT>awgn</TT> (or
+<TT>AWGN</TT>) for the Additive White Gaussian Noise channel, or
+<TT>awln</TT> (or <TT>AWLN</TT>) for the Additive White Logistic Noise
+channel.  The channel type is followed by an argument specifying the
+assumed characteristics of the channel, as follows:
+<BLOCKQUOTE> 
+<P>BSC: The probability that a bit will be flipped by noise - ie, the
+        probability that the bit received is an error.
+
+<P>AWGN: The standard deviation of the Gaussian noise added to the 
+         encodings of the bits.
+
+<P>AWLN: The width parameter of the logistic distribution for the noise 
+         that is added to the encodings of the bits.
+</BLOCKQUOTE>
+See the description of <A HREF="channel.html">channel transmission</A>
+for more about these channels.
+
+<P>Following the channel specification is a specification of the
+decoding method to use.  The <TT>enum-block</TT> and <TT>enum-bit</TT>
+methods find the optimal decoding by exhaustive enumeration of
+codewords derived from all possible source messages.  They differ in
+that <TT>enum-block</TT> decodes to the most likely codeword, whereas
+<TT>enum-bit</TT> decodes to the bits that are individually most
+probable.  These methods require that a file containing a
+representation of a generator matrix be given, to allow enumeration of
+codewords.  If the parity check matrix has no redundant rows, any
+valid generator matrix will give the same decoding (except perhaps if
+there is a tie).  If redundant rows exist, the generator matrix should
+specify the same set of message bits as the generator matrix that was
+used for the actual encoding, since the redundancy will lead to some
+codeword bits being fixed at zero (see <A HREF="dep-H.html">linear
+dependence in parity check matrices</A>).
+
+<P>The <TT>prprp</TT> decoding method decodes using <A
+HREF="#prprp">probability propagation</A>.  The maximum number of
+iterations of probability propagation to do is given following
+<TT>prprp</TT>.  If a minus sign precedes this number, the maximum
+number of iterations is always done.  If no minus sign is present, the
+algorithm stops once the tentative decoding, based on bit-by-bit
+probabilities, is a valid codeword.  Note that continuing to the
+maximum number of iterations will usually result in
+at least slightly different bit probabilities (written to
+<TT><I>bp-file</I></TT> if specified), and could conceivably change 
+the decoding compared to stopping at the first valid codeword, or
+result in a failure to decode to a valid codeword even though one was 
+found earlier.
+
+
+<P><A NAME="extract"><HR><B>extract</B>: Extract the message bits from a block.
+
+<BLOCKQUOTE><PRE>
+extract <I>gen-file decoded-file extracted-file</I>
+</PRE></BLOCKQUOTE>
+
+<P>Given a file of codewords in <TT><I>decoded-file</I></TT> (usually,
+decoded blocks output by <A HREF="#decode"><TT>decode</TT></A>), and a
+generator matrix from <TT><I>gen-file</I></TT> (needed only to
+determine where the message bits are located in a codeword), this
+program writes the message bits extracted from these codewords to the
+file <TT><I>extracted-file</I></TT>.
+
+<P>A newline is output at the end of each block written to
+<TT><I>extracted-file</I></TT>.  Newlines in
+<TT><I>decoded-file</I></TT> are ignored.  A warning is displayed on
+standard error if the number of bits in <TT><I>decoded-file</I></TT>
+is not a multiple of the block length.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

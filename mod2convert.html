@@ -1,0 +1,51 @@
+<HTML><HEAD>
+
+<TITLE> Modulo-2 Matrix Sparse/Dense Conversion </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Modulo-2 Matrix Sparse/Dense Conversion </H1>
+
+<P>The routines below convert modulo-2 matrices between the form used by
+the <A HREF="mod2dense.html">routines for dense modulo-2 matrices</A>
+and the form used by the <A HREF="mod2dense.html">routines for sparse
+modulo-2 matrices</A>.
+
+<P><B>Header files required</B>:
+<TT>mod2sparse.h mod2dense.h mod2convert.h</TT>
+
+
+<P><A NAME="sparse_to_dense"><HR><B>mod2sparse_to_dense</B>:
+Convert a modulo-2 matrix from sparse to dense form.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_to_dense 
+( mod2sparse *m,  /* Sparse matrix to convert */
+  mod2dense *r    /* Place to store result */
+)
+</PRE></BLOCKQUOTE>
+
+The dense matrix, r, must already have been allocated, and must have at
+least as many rows and columns as m, the sparse matrix to be converted.
+
+
+<P><A NAME="dense_to_sparse"><HR><B>mod2dense_to_sparse</B>:
+Convert a modulo-2 matrix from dense to sparse form.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_to_sparse 
+( mod2dense *m,  /* Dense matrix to convert */
+  mod2sparse *r  /* Place to store result */
+)
+</PRE></BLOCKQUOTE>
+
+The sparse matrix, r, must already have been allocated, and must have at
+least as many rows and columns as m, the dense matrix to be converted.
+
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

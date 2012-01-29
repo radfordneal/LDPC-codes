@@ -1,0 +1,487 @@
+<HTML><HEAD>
+
+<TITLE> Dense Modulo-2 Matrix Routines </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Dense Modulo-2 Matrix Routines </H1>
+
+<P>This module implements operations on matrices in which the elements
+are all 0 or 1, with addition and multiplication being done modulo 2.
+The matrices are stored with consecutive bits of a column packed into
+32-bit words, and the procedures are implemented where possible using
+bit operations on these words.  
+
+<P>This is an appropriate representation when the matrices are dense
+(ie, 0s and 1s are about equally frequent).  Matrices in which most
+elements are 0s may be better handled with the <A
+HREF="mod2sparse.html">sparse modulo-2 matrix routines</A>.  Matrices
+can be converted between these two formats using the <A
+HREF="mod2convert.html">module-2 matrix conversion routines</A>.
+  
+<P>All procedures in this module display an error message on standard
+error and terminate the program if passed an invalid argument
+(indicative of a programming error), or if memory cannot be allocated.
+Errors from invalid contents of a file result in an error code being
+returned to the caller, with no message being printed by this module.
+
+
+<H2>Representation of dense matrices</H2>
+
+<P>This module represents a matrix by a pointer to a structure of type
+<TT>mod2dense</TT>.  This structure records the number of rows and
+columns in the matrix, and contains an array of pointers to where the
+bits making up each column are stored.  These bits are packed 32 per
+word. When possible, bits in a column are manipulated 32 bits at a
+time, which operations such as adding one column to another much
+faster than the corresponding operations on rows.  The pointer
+structure also allows the columns of a matrix to easily be rearranged,
+which may be necessary when doing matrix inversion.
+
+
+<P><B>Header files required</B>:
+<TT>mod2dense.h</TT>
+
+
+<A NAME="dimension-sec">
+<P><HR>
+<CENTER><BIG>Dimension Macros</BIG></CENTER>
+</A>
+
+<HR>The following macros take a pointer to a mod2dense structure as their
+argument, and return the number of rows or the number of columns in
+the matrix pointed to, which will have been fixed when the matrix was
+created with <A HREF="#allocate">mod2dense_allocate</A>:
+<BLOCKQUOTE><PRE>
+mod2dense_rows(m)   /* Returns the number of rows in m */
+
+mod2dense_cols(m)   /* Returns the number of columns in m */
+</PRE></BLOCKQUOTE>
+
+
+<A NAME="alloc-sec">
+<P><HR>
+<CENTER><BIG>Allocating and Freeing Dense Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+
+<A NAME="allocate"><HR><B>mod2dense_allocate</B>: 
+Allocate space for a dense module-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+mod2dense *mod2dense_allocate 
+( int n_rows,    /* Number of rows in matrix */
+  int n_cols     /* Number of columns in matrix */
+)
+</PRE></BLOCKQUOTE>
+
+Allocates space for a matrix with the given number of rows and
+columns, and returns a pointer to it.  If there is not enough memory
+available, a message is displayed on standard error and the program is
+terminated.  The matrix should be freed with <A
+HREF="#free"><TT>mod2dense_free</TT></A> once it is no longer in use.
+
+<P><A NAME="free"><HR><B>mod2dense_free</B>: 
+Free the space occupied by a dense module-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_free 
+( mod2dense *m   /* Pointer to matrix to free */
+)
+</PRE></BLOCKQUOTE>
+
+Frees the space occupied by the matrix for re-use.  The pointer passed
+should no longer be used.
+
+
+<A NAME="copy-clear-sec">
+<P><HR>
+<CENTER><BIG>Copying and Clearing Dense Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+<A NAME="clear"><HR><B>mod2dense_clear</B>: 
+Set all elements of a matrix to zero.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_clear
+( mod2dense *m   /* Pointer to matrix to clear */
+)
+</PRE></BLOCKQUOTE>
+
+Sets all of the elements of the matrix passed to 0.
+
+<P><A NAME="copy"><HR><B>mod2dense_copy</B>: 
+Copy the contents of one matrix to another.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_copy
+( mod2dense *m   /* Pointer to matrix to copy from */
+  mod2dense *r   /* Pointer to matrix to receive data */
+)
+</PRE></BLOCKQUOTE>
+
+Copies the contents of the first matrix passed, <B>m</B>, to the
+second matrix passed, <B>r</B>, which must already have been
+allocated, and must have at least as many rows and columns as the
+first.  If <B>r</B> is larger than <B>m</B>, its elements that have
+row or column indexes greater than the dimension of <B>m</B> are set
+to zeros.
+
+
+<P><A NAME="copyrows"><HR><B>mod2dense_copyrows</B>: 
+Copy selected rows from one matrix to another.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_copyrows
+( mod2dense *m,   /* Pointer to matrix to copy columns from */
+  mod2dense *r,   /* Pointer to matrix in which to store data */
+  int *rows       /* Indexes of rows, numbered from 0 */
+)
+</PRE></BLOCKQUOTE>
+
+Copies selected rows of the first matrix, <B>m</B>, to the second
+matrix, <B>r</B>, which must already have been allocated, and which
+must have at least as many columns as <B>m</B>.  The indexes of the
+rows to copy are given in order as an array of length the same as
+the number of rows in <B>r</B>; duplicates are allowed.  Row
+indexes start at 0.  These rows are copied to <B>r</B>, with the
+row indexed by the first entry in <B>rows</B> going to the first
+row of <B>r</B>, and so forth.  If <B>r</B> has more columns than
+<B>m</B>, the extra entries in each row are set to zeros.
+
+
+<P><A NAME="copycols"><HR><B>mod2dense_copycols</B>: 
+Copy selected columns from one matrix to another.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_copycols
+( mod2dense *m,   /* Pointer to matrix to copy columns from */
+  mod2dense *r,   /* Pointer to matrix in which to store data */
+  int *cols       /* Indexes of columns, numbered from 0 */
+)
+</PRE></BLOCKQUOTE>
+
+Copies selected columns of the first matrix, <B>m</B>, to the second
+matrix, <B>r</B>, which must already have been allocated, and which
+must have at least as many rows as <B>m</B>.  The indexes of the
+columns to copy are given in order as an array of length the same as
+the number of columns in <B>r</B>; duplicates are allowed.  Column
+indexes start at 0.  These columns are copied to <B>r</B>, with the
+column indexed by the first entry in <B>cols</B> going to the first
+column of <B>r</B>, and so forth.  If <B>r</B> has more rows than
+<B>m</B>, the extra entries in each column are set to zeros.
+
+
+<A NAME="input-output-sec">
+<P><HR>
+<CENTER><BIG>Input and Output of Dense Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+<A NAME="print"><HR><B>mod2dense_print</B>: 
+Print a dense modulo-2 matrix in human-readable form.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_print
+( FILE *f,       /* File to print to */
+  mod2dense *m   /* Pointer to matrix to print */
+)
+</PRE></BLOCKQUOTE>
+
+The matrix is printed on standard output as "0" and "1" characters,
+each preceded by a space, with one line of "0"s and "1"s for each row
+of the matrix.
+
+<P><A NAME="write"><HR><B>mod2dense_write</B>: 
+Write a dense modulo-2 matrix to a file in machine-readable format.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2dense_write
+( FILE *f,       /* File to write data to */
+  mod2dense *m   /* Pointer to matrix write out */
+)
+</PRE></BLOCKQUOTE>
+
+Writes a machine-readable representation the dense matrix <B>m</B> to
+the file <B>f</B>.  The file should have been opened in binary mode
+(with a "b" in the mode passed to fopen).  The contents written will
+not be text, and will not be human-readable.  Other binary data may
+precede or follow the data for the matrix written.  
+
+<P>The data written to the file consists of the number of rows and the
+number of columns, followed by the bits in each column, packed into
+32-bit words.  The data should be readable by <A
+HREF="#read"><TT>mod2dense_read</TT></A> even on a machine with a
+different byte-ordering.
+
+<P>The value returned by <TT>mod2dense_write</TT> is one if the
+operation was successful, zero if an error of some sort occurred.
+
+<P><A NAME="read"><HR><B>mod2dense_read</B>: 
+Read a dense modulo-2 matrix from a file.</A>
+
+<BLOCKQUOTE><PRE>
+mod2dense *mod2dense_read
+( FILE *f,       /* File to read data from */
+)
+</PRE></BLOCKQUOTE>
+
+Reads a dense modulo-2 matrix from the file <B>f</B>.  This file
+should have been opened in binary mode (with a "b" in the mode passed
+to fopen).  The contents of the file at the point when
+<TT>mod2dense_read</TT> is called should have been written by <A
+HREF="#write"><TT>mod2dense_write</TT></A>.  Other binary data may
+precede or follow this data.
+
+<P>The value returned is a pointer to the matrix read, for which space
+will have been allocated by <TT>mod2dense_read</TT>, or zero if an
+error occurred (either an error reading the file, or data not in the
+right format).
+
+
+<A NAME="elementary-sec">
+<P><HR>
+<CENTER><BIG>Elementary Operations on Dense Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+<A NAME="get"><HR><B>mod2dense_get</B>: 
+Get an element of a dense modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2dense_get  
+( mod2dense *m,   /* Pointer to matrix to get element from */
+  int row,        /* Row of element (indexed from zero) */
+  int col         /* Column of element (indexed from zero) */
+)
+</PRE></BLOCKQUOTE>
+
+Returns the value (0 or 1) of the element in the given row and column
+of the matrix <B>m</B>.
+
+<P><A NAME="set"><HR><B>mod2dense_set</B>: 
+Set an element of a dense modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_set
+( mod2dense *m,   /* Pointer to matrix to get element from */
+  int row,        /* Row of element (indexed from zero) */
+  int col,        /* Column of element (indexed from zero) */
+  int value       /* New value of element (0 or 1) */
+)
+</PRE></BLOCKQUOTE>
+
+Set the element in the given row and column of the matrix <B>m</B> to
+the specified value.
+
+<P><A NAME="flip"><HR><B>mod2dense_flip</B>: 
+Flip an element of a dense modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2dense_flip
+( mod2dense *m,   /* Pointer to matrix to get element from */
+  int row,        /* Row of element (indexed from zero) */
+  int col         /* Column of element (indexed from zero) */
+)
+</PRE></BLOCKQUOTE>
+
+Flips the value of the element in the given row and column of the 
+matrix <B>m</B>, changing it to 0 if it was 1, and to 1 if it was 0.
+Returns the new value of this element.
+
+
+<A NAME="arith-sec">
+<P><HR>
+<CENTER><BIG>Dense Modulo-2 Matrix Arithmetic and Comparison</BIG></CENTER>
+</A>
+
+<A NAME="transpose"><HR><B>mod2dense_transpose</B>: 
+Compute the transpose of a dense modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_transpose
+( mod2dense *m,   /* Matrix to compute transpose of */
+  mod2dense *r    /* Result of transpose operation */
+)
+</PRE></BLOCKQUOTE>
+
+Stores the transpose of its first argument, <B>m</B>, in the matrix
+pointed to by its second argument, <B>r</B>, which must already have
+been allocated, and which must have as many rows as <B>m</B> has
+columns, and as many columns as <B>m</B> has rows.  The two matrices
+<B>m</B> and <B>r</B> must not be the same (ie, the two pointers
+passed must be different).
+
+<P><A NAME="add"><HR><B>mod2dense_add</B>: 
+Add two dense modulo-2 matrices.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_add
+( mod2dense *m1,  /* Left operand of add */
+  mod2dense *m2,  /* Right operand of add */
+  mod2dense *r    /* Place to store result of add */
+)
+</PRE></BLOCKQUOTE>
+
+Adds matrices <B>m1</B> and <B>m2</B>, storing the result in the
+matrix pointed to by <B>r</B>.  All three matrices must have the same
+numbers of rows and columns.  It is permissible for <B>r</B> to be the
+same as <B>m1</B> and/or <B>m2</B>.  Neither of the first two matrices is
+changed by this procedure (unless they are the same as <B>r</B>).
+
+
+<P><A NAME="multiply"><HR><B>mod2dense_multiply</B>: 
+Multiply two dense modulo-2 matrices.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2dense_multiply 
+( mod2dense *m1,  /* Left operand of multiply */
+  mod2dense *m2,  /* Right operand of multiply */
+  mod2dense *r    /* Place to store result of multiply */
+)
+</PRE></BLOCKQUOTE>
+
+Does a matrix multiplication of <B>m1</B> by <B>m2</B>, and stores the
+result in the matrix pointed to by <B>r</B>.  The matrices must have
+compatible numbers of rows and columns.  Neither of the first two
+matrices is changed by this procedure.  The result matrix, <B>r</B>,
+must not be the same as either <B>m1</B> or <B>m2</B>.
+
+<P>The algorithm used runs faster if <B>m2</B> contains mostly 0s, but
+it is also appropriate for matrices with many 1s.
+
+<P><A NAME="equal"><HR><B>mod2dense_equal</B>: 
+Check whether two dense modulo-2 matrices are equal.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2dense_equal
+( mod2dense *m1, /* Pointers to the two matrices */
+  mod2dense *m2  /*   to compare                 */
+)
+</PRE></BLOCKQUOTE>
+
+Returns one if every element of <B>m1</B> is equal to the
+corresponding element of <B>m2</B>, and otherwise returns zero.  The
+two matrices must have the same number of rows and the same number of
+columns.
+
+<A NAME="invert-sec">
+<P><HR>
+<CENTER><BIG>Dense Modulo-2 Matrix Inversion</BIG></CENTER>
+</A>
+
+<A NAME="invert"><HR><B>mod2dense_invert</B>: 
+Invert a dense modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2dense_invert
+( mod2dense *m,   /* Matrix to find inverse of (destroyed) */
+  mod2dense *r    /* Place to store the inverse */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Inverts the first matrix passed, <B>m</B>, and stores its inverse in
+the second matrix, <B>r</B>.  The contents of <B>m</B> are destroyed
+by this operation, though it remains a valid matrix for storing into
+later.  The matrix <B>m</B> must have the same number of rows as
+columns.  The matrix <B>r</B> must already have been allocated, and
+must have the same number of rows and columns as <B>m</B>.  The
+two matrices passed must not be the same.
+
+<P>The value returned is one if the inversion was successful and zero
+if the matrix turned out to be singular (in which case the contents of
+both the original matrix and the result matrix will be garbage).
+
+<P>The algorithm used is based on inverting M by transforming the equation
+MI = M to the equation MR = I using column operations, at which point R 
+is the inverse of M.  The representation of matrices used allows easy
+swapping of columns as needed by fiddling pointers.
+
+<P><A NAME="forcibly_invert"><HR><B>mod2dense_forcibly_invert</B>: 
+Forcibly invert a matrix by changing bits if necessary.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2dense_forcibly_invert
+( mod2dense *m,   /* Matrix to find inverse of (destroyed) */
+  mod2dense *r,   /* Place to store the inverse */
+  int *a_row,     /* Place to store row indexes of altered elements */
+  int *a_col      /* Place to store column indexes of altered elements */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Inverts the first matrix passed, <B>m</B>, and stores its inverse
+in the second matrix, <B>r</B>, proceeding with the inversion even if
+<B>m</B> is singular, by changing some elements as necessary.  The
+contents of <B>m</B> are destroyed by this operation, though it
+remains a valid matrix for storing into later.  The matrix <B>m</B>
+must have the same number of rows as columns.  The matrix <B>r</B>
+must already have been allocated, and must have the same number of
+rows and columns as <B>m</B>.  The two matrices passed must not be the
+same.
+
+<P>The value returned is the number of elements of <B>m</B> that had
+to be changed to make inversion possible (zero, if the original matrix
+was non-singular).  The row and column indexes of the elements of the
+original matrix that were changed are stored in the arrays passed as
+the last two elements.  These arrays must have as many elements as the
+dimension of the matrix.  (This is so even if it is known that fewer
+elements than this will be changed, as these arrays are also used as
+temporary storage by this routine.)
+
+<P>See <A HREF="#invert"><TT>mod2dense_invert</TT></A> for the algorithm used.
+
+<P><A NAME="invert_selected"><HR><B>mod2dense_invert_selected</B>: 
+Invert a matrix with columns selected from a bigger matrix.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2dense_invert_selected 
+( mod2dense *m,   /* Matrix from which a submatrix is inverted (destroyed) */
+  mod2dense *r,   /* Place to store the inverse */
+  int *rows,      /* Place to store indexes of rows used and not used */
+  int *cols       /* Place to store indexes of columns used and not used */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Inverts a matrix obtained by selecting certain columns from the
+first matrix passed, <B>m</B>, which must have at least as many
+columns as rows.  The second matrix passed, <B>r</B>, must already
+exist, and must have the same number of rows and columns as <B>m</B>.
+The result of inverting the sub-matrix of <B>m</B> is stored in the
+corresponding columns of <B>r</B>, with the other columns being set to
+garbage (or zero, see below).  Normally, one would extract just the
+relevant columns afterwards using <A
+HREF="#copycols"><TT>mod2dense_copycols</TT></A>.)  The contents of
+<B>m</B> are destroyed (though it remains a valid matrix for storing
+into later.  The two matrices passed must not be the same.
+
+<P>The indexes of the columns selected are stored, in order, in the last
+argument, <B>cols</B>, followed by the columns not selected (in
+arbitrary order).  The argument <B>rows</B> is set to the indexes of
+the rows used, which will be simply the indexes from zero up if the
+matrix is invertible, and will otherwise give an ordering that allows
+the inversion to proceed as far as possible.
+
+<P>The value returned is zero if an invertible matrix was found, and
+is otherwise the number of columns/rows that are redundant (ie, the
+amount by which matrix falls short of being of full rank).  If
+inversion fails, partial results are stored in the columns and rows of
+<B>r</B> identified by the initial portions of <B>cols</B> and
+<B>rows</B>, such that if these rows and columns were extracted in
+their new order, they would constitute the inverse of the
+corresponding re-ordered submatrix of <B>m</B>.  The remaining portion
+of <B>cols</B> up to the number of rows in <B>m</B> will contain
+indexes of columns of <B>r</B> that are selected arbitrarily; these
+columns will, however, be set to contain all zeros.
+
+<P>Note that when the first matrix is square, and non-singular, the
+result is NOT in general the same as that obtained by calling <A
+HREF="#invert"></TT>mod2dense_invert</TT></A>, since that procedure
+orders the columns of the inverse so that it applies to the original
+ordering of the columns of the first matrix.
+
+<P>See <A HREF="#invert"><TT>mod2dense_invert</TT></A> for the algorithm used.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

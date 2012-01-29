@@ -1,0 +1,85 @@
+<HTML><HEAD>
+
+<TITLE> Linear Dependence in Parity Check Matrices </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Linear Dependence in Parity Check Matrices </H1>
+
+<P>If a code is specified by means of a <I>M</I> by <I>N</I> parity
+check matrix, <B>H</B>, in which some rows are linearly dependent - a
+situation that is usually avoided - it would be possible to map more
+than the usual <I>K=N-M</I> message bits into a codeword, since one or
+more rows of <B>H</B> could have been deleted without affecting which
+bit vectors are codewords.
+
+<P>However, this software does not increase the number of message bits
+in this case, but instead produces a generator matrix in which some
+rows are all zero, which will cause some bits of the codeword to
+always be zero, regardless of the source message.  Referring to the <A
+HREF="encoding.html#gen-rep">description of generator matrix
+representations</A>, this is accomplished by partially computing
+what would normally be <B>A</B><SUP><SMALL>-1</SMALL></SUP> (for a
+dense or mixed representations) or the <B>L</B> and <B>U</B> matrices
+(for a sparse representation), even though singularity prevents this
+computation from being carried out fully.
+
+<P><B>Example:</B> The parity check matrix created below is redundant,
+since the 10100 row is equal to the sum of the 11000 and 01100 rows.
+<UL><PRE>
+<LI>make-pchk dep.pchk 4 5 0:0 0:1 1:1 1:2 2:0 2:2 3:3 3:4
+<LI>print-pchk -d dep.pchk
+
+Parity check matrix in dep.pchk (dense format):
+
+ 1 1 0 0 0
+ 0 1 1 0 0
+ 1 0 1 0 0
+ 0 0 0 1 1
+
+<LI>make-gen dep.pchk dep.gen dense
+Note: Parity check matrix has 1 redundant checks
+Number of 1s per check in Inv(A) X B is 0.2
+<LI>print-gen dep.gen
+
+Generator matrix (dense representation):
+
+Column order (message bits at end):
+
+   0   1   3   2   4
+
+Inv(A) X B:
+
+ 0
+ 0
+ 1
+ 0
+</PRE></UL>
+The generator matrix above can be used to encode message blocks containing
+one bit.  This message bit is copied unchanged to the last bit (numbered 4) 
+of the codeword, and the first four bits of the codeword are set by multiplying
+this message bit (seen as a vector of length one) by 
+<B>A</B><SUP><SMALL>-1</SMALL></SUP><B>B</B>, shown above, and then
+storing the results in positions given by the column ordering.
+The result is that bit 3 of the codeword produced is
+also set to the message bit, and bits 0, 1, and 2 are set to zero.
+
+<P>Which bits are used for message bits, and which bits are fixed at
+zero, depends on arbitrary choices in the algorithm, which may differ
+from one encoding method to another.  No attempt is made to make the
+best choice.
+
+<P>Note that codeword bits that are always zero can arise even when <B>H</B>
+does not have linearly dependent rows.  For example, if a row of <B>H</B>
+has just one 1 in it, the codeword bit at that position must be zero in any
+codeword.  The way the software handles parity check matrices with less
+than <I>M</I> independent rows is equivalent to adding additional rows
+to <B>H</B> in which only one bit is 1, in order to produce <I>M</I> 
+independent checks.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

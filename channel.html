@@ -1,0 +1,182 @@
+<HTML><HEAD>
+
+<TITLE> Transmission Through a Simulated Channel </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Transmission Through a Simulated Channel </H1>
+
+<P>Once a codeword has been found to represent a source message, it
+can be sent through a <I>channel</I>, with the result that certain
+data is received as the output of the channel, which will be related
+to the codeword sent, but with random noise.  This software currently
+handles only memoryless binary channels, for which each bit sent
+through the channel results in a separate piece of data being
+received, and the noise affecting one bit is independent of the noise
+affecting other bits. 
+
+<P>For a <I>Binary Symmetric Channel</I> (BSC), each bit sent
+results in a bit being received.  The bit received differs from the
+bit sent with some error probability, <I>p</I>, which is the same for
+0 bits and for 1 bits.  In other words, the probability distribution
+for the bit received given the bit sent is as follows:
+<BLOCKQUOTE>
+P(receive 1 | send 1) = P(receive 0 | send 0) = 1-<I>p</I><BR>
+P(receive 1 | send 0) = P(receive 0 | send 1) = <I>p</I>
+</BLOCKQUOTE>
+
+<P>For an <I>Additive White Gaussian Noise</I> (AWGN) channel, the
+data received at each time is equal to the data sent plus Gaussian
+noise with mean zero and some standard deviation, <I>s</I>,
+independently for each bit.  For this software, the data sent is -1
+for a 0 bit and +1 for a 1 bit.  In other words, the distribution
+of the received data given the bit sent is as follows:
+<BLOCKQUOTE>
+data received | send 1 ~ N(+1,<I>s</I><SUP><SMALL>2</SMALL></SUP>)<BR>
+data received | send 0 ~ N(-1,<I>s</I><SUP><SMALL>2</SMALL></SUP>)
+</BLOCKQUOTE>
+
+<P>It is typically assumed that the standard deviation of the noise
+varies with the rate at which bits are sent, increasing in proportion
+to the square root of the rate.  The error rate obtained from sending
+unencoded bits at rate <I>R</I> will then be the same as is obtained
+using a code that repeats each bit <I>n</I> times, and sends these
+bits at rate <I>nR</I> (assuming optimal decoding of each bit by
+thresholding the sum of the <I>n</I> channel outputs corresponding to
+that bit).  Another way of looking at this scaling for <I>s</I> is
+that when bits are send at a lower rate, the receiver will be
+accumulating the channel output for a longer time, with the result
+that the amount of noise will decrease (relative to the signal) as a
+result of averaging.
+
+<P>To account for this, it is common to compare codes for AWGN
+channels in terms of their bit error rate and the value of
+<BLOCKQUOTE>
+<I>E<SUB><SMALL>b</SMALL></SUB></I> / <I>N<SUB><SMALL>0</SMALL></SUB></I>
+= 1 / 2<I>R</I><I>s</I><SUP><SMALL>2</SMALL></SUP>
+</BLOCKQUOTE>
+at which they operate, where <I>R</I>=<I>K</I>/<I>N</I> is the rate
+of the code, and <I>s</I> is the noise level at which the code
+achieves the quoted bit error rate.  Hence, a code operating at a lower
+rate is allowed to assume a lower noise level to make the comparison fair.
+It is common to quote 
+<I>E<SUB><SMALL>b</SMALL></SUB></I> /
+<I>N<SUB><SMALL>0</SMALL></SUB></I> in decibels (db), equal to
+10 log<SUB><SMALL>10</SMALL></SUB>(<I>E<SUB><SMALL>b</SMALL></SUB></I>
+/ <I>N<SUB><SMALL>0</SMALL></SUB></I>).
+
+<P>The <I>Additive White Logistic Noise</I> (AWLN) channel is similar
+to the AWGN channel, except that the noise comes from a logistic rather
+than a Gaussian distribution.  The probability density function for the
+noise is
+<BLOCKQUOTE>
+(1/<I>w</I>) exp(-<I>n</I>/<I>w</I>) / [1 + exp(-<I>n</I>/<I>w</I>)]<SUP>2</SUP>
+</BLOCKQUOTE>
+where <I>n</I> is the amount of noise, and <I>w</I> is a width parameter
+for the distribution, analogous to the <I>s</I> parameter for 
+Gaussian noise.  (However, <I>w</I> is not equal to the standard deviation
+for the logistic distribution, which is 
+sqrt(pi<SUP><SMALL>2</SMALL></SUP>/3)<I>w</I>.)  <B>Note:</B> Although I've
+named this channel in analogy with the AWGN channel, it does not share 
+the properties discussed above regarding how noise levels would be expected
+to change when the data rate changes. 
+
+
+<P><A NAME="transmit"><HR><B>transmit</B>: Transmit bits through a 
+simulated channel.
+
+<BLOCKQUOTE><PRE>
+transmit <I>encoded-file</I>|<I>n-zeros received-file seed channel</I>
+</PRE>
+<BLOCKQUOTE>
+where <TT><I>channel</I></TT> is one of the following:
+<BLOCKQUOTE><PRE>
+bsc <I>error-probability</I>
+
+awgn <I>standard-deviation</I>
+
+awln <I>width</I>
+</PRE></BLOCKQUOTE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+<P>Simulates the transmission of the bits in
+<TT><I>encoded-file</I></TT> through a channel, with the received data
+being stored in <TT><I>received-file</I></TT>.  Typically,
+<TT><I>encoded-file</I></TT> will have been produced by the <A
+HREF="encoding.html#encode"><TT>encode</TT></A> program, but it could
+also come from <A HREF="support.html#rand-src"><TT>rand-src</TT></A>
+or another program.  If newlines separate blocks in
+<TT><I>encoded-file</I></TT>, these block boundaries will be preserved
+in <TT><I>received-file</I></TT>.
+
+<P>Alternatively, a count of zeros to transmit can be given, rather
+than a <I>encoded-file</I>.  This count can be the product of the
+block size and the number of blocks, written with <TT>x</TT>
+separating these numbers, with no spaces.  The
+<TT><I>received-file</I></TT> will mark the block boundaries with
+newlines, assuming a block size of one if a simple bit count is given.
+Note that zero messages are sufficient for assessing the performance
+of a linear code with a symmetrical channel and a symmetrical decoding
+algorithm.  <B>Warning:</B> Ties, messages that lead to floating-point
+overflow, and program bugs can easily make a decoding algorithm
+non-symmetrical, so it's best not to test exclusively on zero
+messages. Indeed, it is best not to do this at all unless you 
+really need to avoid the time needed to generate and encode random
+messages.
+
+<P>The transmission will be corrupted by random noise, which will be
+generated pseudo-randomly based on <TT><I>seed</I></TT>.  The actual
+random seed used will be <TT><I>seed</I></TT> times 10 plus 3, so that
+the stream of pseudo-random numbers will not be the same as any that
+might have been used by another program.
+
+<P>The fourth argument specifies the type of channel, currently either
+<TT>bsc</TT> (or <TT>BSC</TT>) for the Binary Symmetric Channel, or
+<TT>awgn</TT> (or <TT>AWGN</TT>) for the Additive White Gaussian
+Noise channel, or <TT>awln</TT> (or <TT>AWLN</TT>) for the Additive White
+Logistic Noise channel.  The channel type is followed by an argument
+specifying the characteristics of the channel, as follows:
+<BLOCKQUOTE>
+<P>BSC: The probability that a bit will be flipped by noise - ie, the
+        probability that the bit received is an error.
+
+<P>AWGN: The standard deviation of the Gaussian noise that is added to the 
+         encodings of the bits.
+
+<P>AWLN: The width parameter of the logistic distribution for the noise 
+         that is added to the encodings of the bits.
+</BLOCKQUOTE>
+
+See the description of <A HREF="channel.html">channel transmission</A>
+for more details.
+
+<P><B>Examples</B>: The command:
+<UL><PRE>
+<LI>transmit 10x3 rec 1 bsc 0.1
+</PRE></UL>
+will simulate the transmission of 30 zero bits (3 blocks of size 10) through
+a Binary Symmetric Channel with error probability of 0.1.  The result will
+be to store something like the following in the file <TT>rec</TT>:
+<BLOCKQUOTE><PRE>
+0000000000
+1000000000
+0100000000
+</PRE></BLOCKQUOTE>
+If an AWGN channel is used instead, as follows:
+<UL><PRE>
+<LI>transmit 10x3 rec 1 awgn 0.5
+</PRE></UL>
+then the file <TT>rec</TT> will contain data such as:
+<BLOCKQUOTE><PRE>
+ -1.36 -0.86 -0.80 -1.19 -1.18 -0.64 -0.31 -1.16 -1.56 -0.79
+ -2.20 -1.62 -0.53 -1.29 -1.08 -2.05 -0.75 -1.22 -0.81 -0.52
+ -0.86 -0.34 -1.10 -1.30 -1.10 -1.20 -0.37 -1.07 -0.22 -1.46
+</PRE></BLOCKQUOTE>
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

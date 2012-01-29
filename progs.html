@@ -1,0 +1,80 @@
+<HTML><HEAD>
+
+<TITLE> Programs for Low Density Parity Check Codes </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Programs for Low Density Parity Check Codes </H1>
+
+Programs are available for creating LDPC codes, encoding messages,
+simulating transmission through a channel, and decoding the received
+message.  There are links here to the general documentation on each of
+these operations, and to the detailed documentation on the relevant
+programs.
+
+<P>The programs names below are followed by the form of arguments they
+take; a similar usage message is displayed when a program is run with
+no arguments.  In these descriptions, things to be entered literally
+are in roman font, descriptions of something to be supplied are in
+italic.  Arguments in square brackets are optional.  A vertical bar
+separates alternatives.  Dots represent indefinite repetition.
+
+<P>Many of the arguments are file names, which can be a dash ("-") in
+order to specify that standard input or standard output is to be used.
+(However, you can't use standard input or output for more than one thing.)
+
+<P>Click on a main title below for general information on that aspect
+of the software, or on the name of a program for detailed information.
+
+<P><A HREF="pchk.html">Creating a parity check matrix for a code</A>:  
+<BLOCKQUOTE><PRE>
+<A HREF="pchk.html#make-pchk">make-pchk</A> <I>pchk-file n-checks n-bits row</I>:<I>col ...</I>
+
+<A HREF="pchk.html#alist-to-pchk">alist-to-pchk</A> <I>alist-file pchk-file</I>
+
+<A HREF="pchk.html#pchk-to-alist">pchk-to-alist</A> <I>pchk-file alist-file</I>
+
+<A HREF="pchk.html#print-pchk">print-pchk</A> [ -d ] <I>pchk-file</I>
+
+<A HREF="pchk.html#make-ldpc">make-ldpc</A> <I>pchk-file n-checks n-bits seed method</I>
+</PRE></BLOCKQUOTE>
+
+<P><A HREF="encoding.html">Encoding message blocks as codewords</A>:
+<BLOCKQUOTE><PRE>
+<A HREF="encoding.html#make-gen">make-gen</A> <I>pchk-file gen-file method</I>
+
+<A HREF="encoding.html#print-gen">print-gen</A> [ -d ] <I>gen-file</I> 
+
+<A HREF="encoding.html#encode">encode</A> <I>pchk-file gen-file source-file encoded-file</I>
+</PRE></BLOCKQUOTE>
+
+<P><A HREF="channel.html">Transmitting bits through a simulated channel:</A>
+<BLOCKQUOTE><PRE>
+<A HREF="channel.html#transmit">transmit</A> <I>encoded-file</I>|<I>n-zeros received-file seed channel</I>
+</PRE></BLOCKQUOTE>
+
+<P><A HREF="decoding.html">Decoding received blocks:</A>
+<BLOCKQUOTE><PRE>
+<A HREF="decoding.html#decode">decode</A> [ -t | -T ] <I>pchk-file received-file decoded-file</I> [ <I>bp-file</I> ] <I>channel method</I>
+
+<A HREF="decoding.html#extract">extract</A> <I>gen-file decoded-file extracted-file</I>
+</PRE></BLOCKQUOTE>
+
+<P><A HREF="support.html">Support programs:</A>
+<BLOCKQUOTE><PRE>
+<A HREF="support.html#rand-src">rand-src</A> <I>source-file seed n-bits</I>
+
+<A HREF="support.html#verify">verify</A> [ -t ] <I>pchk-file decoded-file</I> [ <I>gen-file</I> [ <I>source-file</I> ] ]
+</PRE></BLOCKQUOTE>
+
+See also the discussions of <A HREF="dep-H.html">linear dependence in
+parity check matrices</A> and of <A HREF="sparse-LU.html">sparse LU
+decomposition methods</A>, and the <A HREF="examples.html">examples
+of program usage</A>.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

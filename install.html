@@ -1,0 +1,74 @@
+<HTML><HEAD>
+
+<TITLE> Installing the LDPC Software </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Installing the LDPC Software </H1>
+
+The LDPC software is written in C, and may well work with any C
+compiler, though it has been tested only in a Unix/Linux environment,
+and in the <A HREF="http://www.cygwin.com">cygwin</A> Unix environment
+that runs under Microsoft Windows.  The installation instructions
+below assume that you are using a Unix-like system.
+
+<P>All the software, including the documentation you are viewing here,
+is contained in a Unix tar file, which you can download by clicking one
+of the options below:
+<BLOCKQUOTE>
+ <A HREF="http://www.cs.utoronto.ca/~radford/ftp/LDPC-2006-02-08/LDPC-2006-02-08.tar">Tar 
+   file of LDPC software</A> (0.9 Megabytes)<BR>
+ <A HREF="http://www.cs.utoronto.ca/~radford/ftp/LDPC-2006-02-08/LDPC-2006-02-08.tar.gz">Gzipped
+   tar file of LDPC software</A> (0.4 Megabytes)
+</BLOCKQUOTE>
+
+<P>Once you obtain the tar file (and uncompress it with gunzip if
+necessary), you should extract the files with the following Unix command:
+<BLOCKQUOTE><PRE>
+tar xf LDPC-2006-02-08.tar
+</PRE></BLOCKQUOTE>
+This will create a directory called <TT>LDPC-2006-02-08</TT>, and place
+all the source, documentation, and other files in this directory.  
+
+<P>If you prefer for this directory to be called something else,
+rename it <B>now</B>, before compiling the programs, since the file
+<TT>randfile</TT> in this directory, containing natural random numbers,
+is accessed according to its path when the programs were compiled.
+
+<P>Once the tar command above has finished, you should change into the
+newly-created directory, and type 
+<BLOCKQUOTE><PRE>
+make
+</PRE></BLOCKQUOTE>
+If all goes well, this should compile all the programs (except for some
+test programs).  
+
+<P>The sub-directory <TT>bin</TT> contains symbolic links to all these
+programs.  You might want to place it in the PATH variable used by
+your shell to find programs.
+
+<P>The LDPC directory contains a copy of all the HTML files
+documenting the software, such as the one you are reading now, with
+the file <TT>index.html</TT> being the starting point.  I recommended
+that you use this local copy when referring to the documentation, rather
+than get it from my web page.  Just tell your browser to open the URL
+<BLOCKQUOTE><PRE>
+file:<I>path-to-software</I>/index.html
+</PRE></BLOCKQUOTE>
+where <TT><I>path-to-software</I></TT> is the full path (starting with "/") 
+to the directory where you've put the software.
+
+<P>The command
+<BLOCKQUOTE><PRE>
+make clean
+</PRE></BLOCKQUOTE>
+will remove all the compiled programs, as well as the files created when
+the <A HREF="examples.html">examples</A> are run, and <TT>core</TT>, if it 
+exists.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

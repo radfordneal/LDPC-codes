@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Example of a (10000,5000) LDPC code with varying numbers of check per bit,
+# tested on Additive White Gaussian Noise channels with noise standard 
+# deviations varying from 0.80 to 0.95.  The code has 20% columns with two 
+# check bits, 70% columns with three check bits, and 10% columns with seven
+# check bits.
+#
+# Testing is done by transmitting random messages, with pipes used so that
+# intermediate files are avoided.  Decoding is done using a maximum of 250
+# iterations of probability propagation.
+
+set -e  # Stop if an error occurs
+set -v  # Echo commands as they are read
+
+make-ldpc ex-ldpcvar-5000a.pchk 5000 10000 2 evenboth 2x2/7x3/1x7 no4cycle
+make-gen  ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen dense
+rand-src  ex-ldpcvar-5000a.src 1 5000x100
+
+# NOISE STANDARD DEVIATION 0.80, Eb/N0 = 1.94 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.80 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.80 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src
+
+# NOISE STANDARD DEVIATION 0.85, Eb/N0 = 1.41 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.85 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.85 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src
+
+# NOISE STANDARD DEVIATION 0.90, Eb/N0 = 0.92 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.90 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.90 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src
+
+# NOISE STANDARD DEVIATION 0.95, Eb/N0 = 0.45 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.95 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.95 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src

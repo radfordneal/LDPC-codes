@@ -1,0 +1,278 @@
+<HTML><HEAD>
+
+<TITLE> Random Variate Generation Routines </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Random Variate Generation Routines </H1>
+
+<P>This module provides facilities for basic pseudo-random number generation,
+and for generation of random variates from various common distributions.
+
+<P>All the random generation procedures use the same underlying
+"stream" of random numbers.  This stream is generated using the
+<TT>nrand48</TT> pseudo-random generation procedure found on most Unix
+systems, with the output being combined with a limited supply of real
+random numbers from the file "randfile" in the source
+directory for this software, in order to reduce the chances that the
+pseudo-random numbers aren't random enough.
+
+<P>A pseudo-random number stream is determined by an integer
+<I>seed</I>, which is typically set by the user for each experimental
+run (eg, to 1, 2, 3, etc. for successive runs).  The state of the
+random number stream can be saved in a structure of type
+<TT>rand_state</TT>, and later restored.  For example, the state could
+be saved in a file at the end of a run, and restored if it is later
+decided that the run should be continued for longer.
+
+<P>The methods for generating random variates from various distributions
+are mostly taken from the following reference:
+<BLOCKQUOTE> 
+  Devroye, L. (1986) <I>Non-Uniform Random Variate Generation</I>, 
+  New York: Springer-Verlag.
+</BLOCKQUOTE>
+The methods used here are not necessarily the fastest available.  They were
+selected to be reasonably fast while also being easy to write.
+
+<P><B>Header file required</B>: <TT>rand.h</TT>
+
+
+<A NAME="get-set-sec">
+<P><HR>
+<CENTER><BIG>Setting and saving the state</BIG></CENTER>
+</A>
+
+
+<A NAME="seed"><HR><B>rand_seed</B>: 
+Set the state from an integer seed.</A>
+
+<BLOCKQUOTE><PRE>
+void rand_seed
+( int seed;  /* Seed to set state based on */
+)
+</PRE></BLOCKQUOTE>
+  
+<P>Sets the random number generator to a state that is determined from
+the integer <TT>seed</TT>.  Setting the seed the same on two occasions,
+and then calling exactly the same sequence of random generation
+procedures, should produce exactly the same sequence of random
+variates.  (Note: this may not be true, however, if computers with
+different architectures are used on the two occasions.)
+
+<P>Sequential seeds should produce streams that are pretty much
+independent (unlike the situation for some pseudo-random number
+generators).  Setting the seed randomly according to the time or day,
+or some such, without recording what it was, is <B>not</B>
+recommended, since the results are then not reproducible.
+
+<P><A NAME="get_state"><HR><B>rand_get_state</B>: 
+Get a pointer to the current state.</A>
+
+<BLOCKQUOTE><PRE>
+rand_state *rand_get_state (void)
+</PRE></BLOCKQUOTE>
+
+Returns a pointer to the current state of the random number generator,
+which is a structure of type <TT>rand_state</TT>.  The only use for this
+pointer is to use it to save a copy of the current state someplace.
+
+
+<P><A NAME="use_state"><HR><B>rand_use_state</B>: 
+Set the state to use from now on.</A>
+
+<BLOCKQUOTE><PRE>
+void rand_use_state 
+( rand_state *state  /* Pointer to a previously saved state */
+)
+</PRE></BLOCKQUOTE>
+
+Sets the random number generator to the state pointed to by the argument.
+This state must be valid.  The only way to get a valid state is by using
+<TT>rand_get_state</TT>.
+
+
+<A NAME="uniform-sec">
+<P><HR>
+<CENTER><BIG>Generating uniform random variates</BIG></CENTER>
+</A>
+
+
+<A NAME="uniform"><HR><B>rand_uniform</B>: 
+Generate uniformly from [0,1).</A>
+
+<BLOCKQUOTE><PRE>
+double rand_uniform (void)
+</PRE></BLOCKQUOTE>
+
+Returns a random number that is uniformly distributed between 0 and 1,
+with a value of exactly 0 being possible, but with a value of exactly 1
+not being possible.
+
+<P><A NAME="uniopen"><HR><B>rand_uniopen</B>: 
+Generate uniformly from (0,1).</A>
+
+<BLOCKQUOTE><PRE>
+double rand_uniopen (void)
+</PRE></BLOCKQUOTE>
+
+Returns a random number that is uniformly distributed between 0 and 1,
+with neither a value of exactly 0 nor a value of exactly 1
+being possible.
+
+
+<A NAME="discrete-sec">
+<P><HR>
+<CENTER><BIG>Generating discrete random variates</BIG></CENTER>
+</A>
+
+
+<A NAME="int"><HR><B>rand_int</B>: 
+Pick an integer uniformly from <I>0</I> to <I>n-1</I>.</A>
+
+<BLOCKQUOTE><PRE>
+int rand_int 
+( int n  /* Number of integers (from 0) to pick from */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Randomly picks an integer from the set { <TT>0, 1, ..., n-1</TT> },
+with each integer being equally probable.  The probabilities may
+become somewhat unequal, however, if <TT>n</TT> is very large,
+approaching 2<SUP><SMALL>31</SMALL></SUP>.
+
+
+<P><A NAME="pickd"><HR><B>rand_pickd</B>: Pick an integer from <I>0</I>
+to <I>n-1</I> with given probabilities (as doubles).</A>
+
+<BLOCKQUOTE><PRE>
+int rand_pickd
+( double *p,  /* Array of probabilities, of length n */
+  int n       /* Number of integers (from 0) to pick from */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Randomly picks an integer from the set { <TT>0, 1, ..., n-1</TT> },
+with probabilities given by the array of double-precision numbers
+passed as the first argument.  These numbers need not sum to one, but they
+must be non-negative, and must not all be zero.  The actual
+probabilities used are obtained by dividing each number in this array
+by the sum of all the numbers.  
+
+<P>If one of the probabilities is exactly zero, it is guaranteed that
+the corresponding integer will not be picked.
+
+
+<P><A NAME="pickf"><HR><B>rand_pickf</B>: Pick an integer from <I>0</I>
+to <I>n-1</I> with given probabilities (as floats).</A>
+
+<BLOCKQUOTE><PRE>
+int rand_pickf
+( float *p,  /* Array of probabilities, of length n */
+  int n      /* Number of integers (from 0) to pick from */
+)
+</PRE></BLOCKQUOTE>
+
+<P>This procedure is the same as <A HREF="#pickd"><TT>rand_pickd</TT></A>
+except that the array giving the probabilities is an array of single-precision
+floating point numbers, rather than double-precision.
+
+
+<A NAME="continuous-sec">
+<P><HR>
+<CENTER><BIG>Generating continuous random variates</BIG></CENTER>
+</A>
+
+
+<A NAME="gaussian"><HR><B>rand_gaussian</B>: 
+Generate a standard Gaussian (normal) random variate.</A>
+
+<BLOCKQUOTE><PRE>
+double rand_gaussian (void)
+</PRE></BLOCKQUOTE>
+
+<P>Generates a random value drawn from the Gaussian (normal) distribution
+with mean zero and standard deviation one, whose density function is 
+proportional to exp(-<I>x<SUP><SMALL>2</SMALL></SUP></I>/2), with <I>x</I>
+being any real value.
+
+
+<A NAME="logistic"><HR><B>rand_logistic</B>: 
+Generate a logistic random variate.</A>
+
+<BLOCKQUOTE><PRE>
+double rand_logistic (void)
+</PRE></BLOCKQUOTE>
+
+<P>Generates a random value drawn from the logistic distribution with
+location parameter zero and width parameter one, whose density
+function is proportional to 
+exp(-<I>x</I>) / [1 + exp(-<I>x</I>)]<SUP><SMALL>2</SMALL></SUP>, 
+with <I>x</I> being any real value.
+
+
+<P><A NAME="cauchy"><HR><B>rand_cauchy</B>:
+Generate a Cauchy random variate.</A>
+
+<BLOCKQUOTE><PRE>
+double rand_cauchy (void)
+</PRE></BLOCKQUOTE>
+
+<P>Generates a random value drawn from the Cauchy distribution with centre
+at zero and width one, whose density function is proportional to 
+1 / (1+<I>x<SUP><SMALL>2</SMALL></SUP></I>), with <I>x</I> being any real value.
+
+
+<P><A NAME="gamma"><HR><B>rand_gamma</B>:
+Generate a gamma-distributed random variate.</A>
+
+<BLOCKQUOTE><PRE>
+double rand_gamma
+( double A   /* Shape parameter */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Generates a random value drawn from the gamma distribution with
+positive shape parameter <I>A</I>, whose density function is proportional
+to <I>x<SUP><SMALL>A-1</SMALL></SUP></I> exp(-<I>x</I>), with <I>x</I>
+being any positive real. This procedure will never return a value that is
+exactly zero.
+
+
+<P><A NAME="exp"><HR><B>rand_exp</B>:
+Generate an exponentially-distributed random variate.</A>
+
+<BLOCKQUOTE><PRE>
+double rand_exponential (void)
+</PRE></BLOCKQUOTE>
+
+<P>Generates a random value drawn from the exponential distribution with 
+mean one, whose density function is exp(-<I>x</I>), with <I>x</I> being
+any positive real.  This procedure will never return a value that is
+exactly zero. 
+
+<P>Note: This is a common special case of the gamma distribution.
+
+
+<P><A NAME="beta"><HR><B>rand_beta</B>:
+Generate a beta-distributed random variate.</A>
+
+<BLOCKQUOTE><PRE>
+double rand_beta
+( double A,  /* Parameters of distribution */
+  double B
+)
+</PRE></BLOCKQUOTE>
+
+<P>Generates a random value drawn from the beta distribution with positive
+parameters <I>A</I> and <I>B</I>, whose density function is proportional
+to <I>x<SUP><SMALL>A-1</SMALL></SUP>(1-x)<SUP><SMALL>B-1</SMALL></SUP></I>,
+with <I>x</I> being any real in the interval (0,1).  This procedure
+will never return a value that is exactly zero or exactly one.
+
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

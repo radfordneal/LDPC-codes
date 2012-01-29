@@ -1,0 +1,86 @@
+<HTML><HEAD>
+
+<TITLE> Modules Used in LDPC Programs </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Modules Used in LDPC Programs </H1>
+
+You may need to familiarize yourself with the modules documented here
+in order to <A HREF="modify.html">modify the LDPC programs</A>.
+These modules may also be useful for other purposes.
+
+<P>Click on the title of a module below for general information, or on
+specific routines for detailed documentation.
+
+<P><A HREF="mod2dense.html">Dense modulo-2 matrix routines</A>:
+<BLOCKQUOTE><PRE>
+<A HREF="mod2dense.html#dimension-sec"><I>Dimension macros:</I>    mod2dense_rows  mod2dense_cols</A>
+
+<I><A HREF="mod2dense.html#alloc-sec">Allocation:</A>          <A HREF="mod2dense.html#copy-clear-sec">Copy/Clear:</A>         <A HREF="mod2dense.html#input-output-sec">Input/Output:</A>    <A HREF="mod2dense.html#elementary-sec">Elementary ops:</A></I>
+
+<A HREF="mod2dense.html#allocate">mod2dense_allocate</A>   <A HREF="mod2dense.html#clear">mod2dense_clear</A>     <A HREF="mod2dense.html#print">mod2dense_print</A>  <A HREF="mod2dense.html#get">mod2dense_get</A>
+<A HREF="mod2dense.html#free">mod2dense_free</A>       <A HREF="mod2dense.html#copy">mod2dense_copy</A>      <A HREF="mod2dense.html#write">mod2dense_write</A>  <A HREF="mod2dense.html#set">mod2dense_set</A>
+                     <A HREF="mod2dense.html#copyrows">mod2dense_copyrows</A>  <A HREF="mod2dense.html#read">mod2dense_read</A>   <A HREF="mod2dense.html#flip">mod2dense_flip</A>
+                     <A HREF="mod2dense.html#copycols">mod2dense_copycols</A>
+
+<I><A HREF="mod2dense.html#arith-sec">Matrix arithmetic:</A>   <A HREF="mod2dense.html#invert-sec">Matrix inversion:</A></I>
+
+<A HREF="mod2dense.html#transpose">mod2dense_transpose</A>  <A HREF="mod2dense.html#invert">mod2dense_invert</A>
+<A HREF="mod2dense.html#add">mod2dense_add</A>        <A HREF="mod2dense.html#forcibly_invert">mod2dense_forcibly_invert</A>
+<A HREF="mod2dense.html#multiply">mod2dense_multiply</A>   <A HREF="mod2dense.html#invert_selected">mod2dense_invert_selected</A>
+<A HREF="mod2dense.html#equal">mod2dense_equal</A>
+</PRE></BLOCKQUOTE>
+
+<P><A HREF="mod2sparse.html">Sparse modulo-2 matrix routines</A>:
+<BLOCKQUOTE><PRE>
+<A HREF="mod2sparse.html#dimension-sec"><I>Dimension macros:</I>    mod2sparse_rows  mod2sparse_cols</A>
+
+<A HREF="mod2sparse.html#traversal-sec"><I>Traversal macros:</I>    mod2sparse_first_in_row  mod2sparse_next_in_row  ...</A>
+
+<I><A HREF="mod2sparse.html#alloc-sec">Allocation:</A>          <A HREF="mod2sparse.html#copy-clear-sec">Copy/Clear:</A>         <A HREF="mod2sparse.html#input-output-sec">Input/Output:</A>     <A HREF="mod2sparse.html#elementary-sec">Elementary ops:</A></I>
+
+<A HREF="mod2sparse.html#allocate">mod2sparse_allocate</A>  <A HREF="mod2sparse.html#clear">mod2sparse_clear</A>    <A HREF="mod2sparse.html#print">mod2sparse_print</A>  <A HREF="mod2sparse.html#find">mod2sparse_find</A>
+<A HREF="mod2sparse.html#free">mod2sparse_free</A>      <A HREF="mod2sparse.html#copy">mod2sparse_copy</A>     <A HREF="mod2sparse.html#write">mod2sparse_write</A>  <A HREF="mod2sparse.html#insert">mod2sparse_insert</A>
+                     <A HREF="mod2sparse.html#copyrows">mod2sparse_copyrows</A> <A HREF="mod2sparse.html#read">mod2sparse_read</A>   <A HREF="mod2sparse.html#delete">mod2sparse_delete</A>
+                     <A HREF="mod2sparse.html#copycols">mod2sparse_copycols</A>
+
+<I><A HREF="mod2sparse.html#arith-sec">Matrix arithmetic:</A>   <A HREF="mod2sparse.html#row-col-ops-sec">Row/Column ops:</A>       <A HREF="mod2sparse.html#lu-decomp-sec">LU decomposition:</A></I>
+
+<A HREF="mod2sparse.html#transpose">mod2sparse_transpose</A> <A HREF="mod2sparse.html#count_row">mod2sparse_count_row</A>  <A HREF="mod2sparse.html#decomp">mod2sparse_decomp</A>
+<A HREF="mod2sparse.html#add">mod2sparse_add</A>       <A HREF="mod2sparse.html#count_col">mod2sparse_count_col</A>  <A HREF="mod2sparse.html#forward_sub">mod2sparse_forward_sub</A>
+<A HREF="mod2sparse.html#multiply">mod2sparse_multiply</A>  <A HREF="mod2sparse.html#add_row">mod2sparse_add_row</A>    <A HREF="mod2sparse.html#backward_sub">mod2sparse_backward_sub</A>
+<A HREF="mod2sparse.html#mulvec">mod2sparse_mulvec</A>    <A HREF="mod2sparse.html#add_col">mod2sparse_add_col</A>
+<A HREF="mod2sparse.html#equal">mod2sparse_equal</A>
+</PRE>
+<A HREF="sparse-LU.html">Discussion of sparse LU decomposition methods.</A>
+</BLOCKQUOTE>
+
+<P><A HREF="mod2convert.html">Modulo-2 matrix sparse/dense conversion</A>:
+<BLOCKQUOTE><PRE>
+<A HREF="mod2convert.html#sparse_to_dense">mod2sparse_to_dense</A>
+<A HREF="mod2convert.html#dense_to_sparse">mod2dense_to_sparse</A>
+</PRE></BLOCKQUOTE>
+
+<P><A HREF="rand.html">Random variate generation routines</A>:
+<BLOCKQUOTE><PRE>
+<I><A HREF="rand.html#get-set-sec">Set/Get state:<A>   <A HREF="rand.html#uniform-sec">Uniform:</A>       <A HREF="rand.html#discrete-sec">Discrete:</A>    <A HREF="rand.html#continuous-sec">Continuous:</A></I>
+
+<A HREF="rand.html#seed">rand_seed</A>        <A HREF="rand.html#uniform">rand_uniform</A>   <A HREF="rand.html#int">rand_int</A>     <A HREF="rand.html#gaussian">rand_gaussian</A>  <A HREF="rand.html#gamma">rand_gamma</A>
+<A HREF="rand.html#get_state">rand_get_state</A>   <A HREF="rand.html#uniopen">rand_uniopen</A>   <A HREF="rand.html#pickd">rand_pickd</A>   <A HREF="rand.html#logistic">rand_logistic</A>  <A HREF="rand.html#exp">rand_exp</A>
+<A HREF="rand.html#use_state">rand_use_state</A>                  <A HREF="rand.html#pickf">rand_pickf</A>   <A HREF="rand.html#cauchy">rand_cauchy</A>    <A HREF="rand.html#beta">rand_beta</A>
+</PRE></BLOCKQUOTE>
+
+<P>Each of the modules above has a test program, called
+<TT><I>module</I>-test</TT>.  These programs are compiled by the command
+<BLOCKQUOTE><PRE>
+make tests 
+</PRE></BLOCKQUOTE>
+See the source files for these test programs for further information.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

@@ -1,0 +1,59 @@
+<HTML><HEAD>
+
+<TITLE> References on Low Density Parity Check Codes </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> References on Low Density Parity Check Codes </H1>
+
+Robert Gallager's original work on low density parity check codes was published
+as the following book, based his doctoral dissertation, and a related paper:
+<BLOCKQUOTE>
+<P>Gallager, R. G. (1963) <I>Low Density Parity Check Codes</I>,
+   Cambridge, MA: MIT Press.
+<P>Gallager, R. G. (1962) ``Low-density parity-check codes'', <I>IRE
+   Transactions on Information Theory</I>, vol. IT-8, pp. 21-28.
+</BLOCKQUOTE>
+
+More recent work on these codes by David MacKay and myself was published
+as follows:
+<BLOCKQUOTE>
+<P>MacKay, D. J. C. and Neal, R. M. (1996) ``Near Shannon limit performance
+   of low density parity check codes'', <I>Electronics Letters</I>,
+   vol. 32, pp. 1645-1646. Reprinted with printing errors corrected
+   in vol. 33, pp. 457-458.
+<P>MacKay, D. J. C. (1999) ``Good error-correcting codes based on very
+   sparse matrices'', <I>IEEE Transactions on Information Theory</I>,
+   vol. 45, pp. 399-431.
+</BLOCKQUOTE>
+
+The decoding algorithms described in the above references can visualized
+in terms of a ``factor graph'' representation of the code, as described
+in the following paper:
+<BLOCKQUOTE>
+<P>Kschischang, F. R., Frey, B. J., and Loeliger, H.-A. (1998) ``Factor graphs 
+and the sum-product algorithm'', available from 
+<A HREF="http://www.cs.toronto.edu/~frey/papers/fgspa.abs.html">here</A>.
+</BLOCKQUOTE>
+
+I presented the application of sparse matrix techniques to encoding of
+LDPC codes at the IMA workshop on Codes, Systems and Graphical Models,
+Minneapolis, 1999.  You can view the slides of this talk as <A
+HREF="sparse-encode.ps.gz">Postscript</A> or <A
+HREF="sparse-encode.pdf">PDF</A>.  <B>Note</B>: Due to a bug in the
+program I used then, the results shown for the minimal product heuristic in
+these slides are somewhat worse than the actual performance.  For instance,
+the number of bit operations per check bit for for <I>M</I>=3200 with
+3 checks per bit is actually around 12.7, not the value around 17 shown
+on one of the slides.
+
+<P>Text and references to many more recent and classical papers can be
+obtained via the <A HREF="http://www.ima.umn.edu/csg/">IMA workshop's
+web page</A>.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

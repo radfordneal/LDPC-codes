@@ -1,0 +1,203 @@
+<HTML><HEAD>
+
+<TITLE>Release Notes for LDPC Software</TITLE>
+
+</HEAD><BODY>
+
+
+<H1>Release Notes for LDPC Software</H1>
+
+These notes describe all the public releases of this software.  Old
+and future releases can be obtained via
+<BLOCKQUOTE>
+<A HREF="http://www.cs.toronto.edu/~radford/ldpc.software.html">
+<TT>http://www.cs.toronto.edu/~radford/ldpc.software.html</TT></A>
+</BLOCKQUOTE>
+
+
+<H2>Release of 2006-02-08.</H2>
+
+The copyright notice has been changed in this release to no longer
+restrict use to purposes of research or education.  The new copyright
+notice can be read <A HREF="index.html#copyright">here</A>.  It is now
+possible to create LDPC codes with varying numbers of checks per bit
+(an extension based on work by Peter Junteng Liu).  New programs for
+converting to and from the <A
+HREF="http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html">alist
+format</A> for parity check matrices, used by David MacKay and others,
+have also been added.
+
+<P>The following new features have been added:
+<OL>
+<LI> The <A HREF="pchk.html#make-ldpc"><TT>make-ldpc</TT></A> program can
+     new create LDPC codes with varying numbers of checks per bit.  The
+     <A HREF="examples.html">examples</A> now include a code of this sort.
+<LI> New programs <A HREF="pchk.html#pchk-to-alist"><TT>pchk-to-alist</TT></A> 
+     and <A HREF="pchk.html#alist-to-pchk"><TT>alist-to-pchk</TT></A> have
+     been added, which convert to and from <A
+     HREF="http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html">alist
+     format</A>.
+<LI> A <A HREF="run-examples"><TT>run-examples</TT></A> script has been 
+     added, which runs all the <A HREF="examples.html">examples</A> and 
+     compares with the saved output that I obtained.
+</OL>
+
+
+<H2>Release of 2001-11-18.</H2>
+
+This is a minor release, whose main purpose is fixing bug (1) below.
+Also, this release has been tested and found to work with the <A
+HREF="http://www.cygwin.com">cygwin</A> Unix environment that runs
+under Microsoft Windows.
+
+<P>The following new feature has been added:
+<OL>
+<LI> A new <B>-t</B> option has been added to 
+     <A HREF="pchk.html#print-pchk"><TT>print-pchk</TT></A>, which 
+     causes it to print the transpose of the parity check matrix.
+</OL>
+
+The following program module change was made:
+<OL>
+
+<LI> The behaviour of <A
+     HREF="mod2dense.html#invert_selected">mod2dense_invert_selected</A>
+     has been changed when the matrix has dependent rows.  The result returned 
+     contains the inverse of a sub-matrix in its initial columns.  The contents
+     of the remaining columns up to the number of rows was previously undefined,
+     but these columns are now set to contain zeros.  This was done to fix
+     bug (1) below.
+</OL>
+
+The following bugs were fixed:
+<OL>
+<LI> A bug has been fixed in 
+     <A HREF="encoding.html#make-gen"><TT>make-gen</TT></A>
+     which sometimes 
+     produced invalid `dense' or `mixed' generator matrices when the parity 
+     check matrix had redundant rows.
+     The `sparse' generator matrices were not affected.  The output of the 
+     <A HREF="ex-dep"><TT>ex-dep</TT></A> example has changed slightly as a 
+     result.
+<LI> The open mode for reading the file of random numbers has been changed from
+     "r" to "rb", for compatibility with non-Unix systems.
+<LI> <A HREF="mod2sparse.html#copy"><TT>mod2sparse_copy</TT></A> has
+     been fixed so that it copies the <B>lr</B> and <B>pr</B> fields
+     of entries.
+<LI> The "set -v -e" in the command files for the examples has 
+     been replaced by two commands, "set -e" and "set -v", since some 
+     shells can't set two options at once.
+</OL>
+
+A few minor fixes to the documentation have also been made.
+
+
+<H2>Release of 2001-05-04.</H2>
+
+Changes and new features regarding programs and associated
+documentation and examples:
+<OL>
+<LI> Warnings have been added to the documentation about the dangers of
+     using zero codewords for testing (due to the possibility of the decoder
+     accidently being non-symmetric).  The examples have been changed to
+     not use zero codewords, except for 
+     <A HREF="ex-ham7a"><TT>ex-ham7a</TT></A>, which still
+     demonstrates this facility.
+<LI> Decoding by probability propagation has been changed so that if
+     a probability ratio gets set to NaN ("not a number", the result of 
+     infinite but conflicting evidence from different sources), the probability 
+     ratio is changed to 1, in hopes that something sensible may result.
+<LI> The decoding procedures have been changed to decode a bit to a 1 if
+     there is a tie, so that any resulting asymmetry in decoding will 
+     make zero decoding less, rather than more, likely.  See point (1) above.
+<LI> All programs now allow a file name argument to be "-", which specifies
+     standard input or standard output, as appropriate.  The 
+     <A HREF="ex-ldpc36-5000a"><TT>ex-ldpc36-5000a</TT></A> example has been
+     changed to use this facility in order to avoid creating lots of files.
+<LI> Channels with noise from a logistic distribution (AWLN) have been
+     implemented.  For details,
+     see the <A HREF="channel.html">channel documentation</A>.
+<LI> The <B>make-gen</B> program for "dense" or "mixed" options was modified 
+     so that when some parity checks are redundant, others are not declared 
+     redundant when they aren't.  This makes the result compatible with
+     what is obtained with the "sparse" option.  The example in the 
+     <A HREF="dep-H.html">discussion of linear dependence in parity check 
+     matrices</A> has changed slightly as a result.
+<LI> The messages displayed by the <A HREF="decoding.html#decode">decode</A> 
+     program have changed slightly: The block size is no longer displayed,
+     and the percentage of bits changed is now shown.  The data output
+     when the <B>-t</B> option is specified now includes the number of
+     bits changed in each block.  
+<LI> A new <B>-T</B> option to <A HREF="decoding.html#decode">decode</A> 
+     for displaying
+     <A HREF="decode-detail.html">detailed information on decoding</A>
+     has been added.
+<LI> Doing a <B>make clean</B> will now remove the files created 
+     by running the <A HREF="examples.html">examples</A>.
+<LI> The files created by the <A HREF="examples.html">examples</A> now
+     start with "<TT>ex-</TT>" and contain a ".", to make them easier to 
+     identify for cleanup, and the saved output file now ends in 
+     "<TT>-out</TT>" rather than "<TT>.out</TT>".
+<LI> The scripts for the examples now use the <B>-v</B> option of <B>set</B>
+     rather than <B>-x</B>, so that the command lines are echoed 
+     faithfully as they are read.
+<LI> Two new <A HREF="examples.html">examples</A> have been added:
+     <TT>ex-dep</TT> demonstrates what happens when parity check matrices
+     have redundant row, and <TT>ex-wrong-model</TT> investigates what
+     happens when the wrong model is used to decode.
+</OL>
+Changes and new features regarding program modules and other internals:
+<OL>
+<LI> Instructions have been added on 
+     <A HREF="modify.html">how to modify the programs</A>, and some
+     code has been reorganized to facilitate modifications.
+<LI> The makefile has been made trivial, simply recompiling everything
+     from scratch every time.  This is simpler and less error prone
+     than putting in dependencies.
+     Compiling all the programs takes only about five seconds on a 
+     modern PC.
+<LI> The 
+ <A HREF="mod2dense.html#invert_selected"><TT>mod2dense_invert_selected</TT></A>
+     procedure has been changed
+     to take an additional argument in which a permutation of rows is
+     returned.  This extension is needed in order for the result when
+     the matrix is not of full rank to include as many rows as possible,
+     as needed for the above modification of <B>make-gen</B>.
+<LI> New routines 
+     <A HREF="mod2dense.html#copyrows"><TT>mod2dense_copyrows</TT></A> and 
+     <A HREF="mod2sparse.html#copyrows"><TT>mod2sparse_copyrows</TT></A> have
+     been added, analogous to the previous routines for copying columns.
+<LI> The decoding procedures have been changed to always return the bit
+     probabilities (previously, one could pass a null pointer to suppress
+     this).  This makes things simpler, and facilitates the production of
+     detailed trace output when the <B>-T</B> option is used.
+</OL>
+
+The following bugs were fixed:
+<OL>
+<LI> A problem with <B>print-gen</B> prevented the <B>-d</B> option from working
+     in most cases.  The documentation was also fixed to note what
+     the <B>L</B> and <B>U</B> matrices printed will look like.
+<LI> The documentation for 
+     <A HREF="mod2sparse.html#copycols"><TT>mod2sparse_copycols</TT></A> and
+     <A HREF="mod2dense.html#copycols"><TT>mod2dense_copycols</TT></A>
+     was ambiguous.  It has been clarified.  The dense and sparse 
+     implementations were inconsistent.  The sparse version has been changed
+     to match the dense version, which was and is the only version actually
+     used in the LDPC software.
+<LI> In <TT>decode.c</TT>, a variable declared to be <TT>float</TT> was printed
+     using "<TT>%f</TT>", which strangely didn't work with one compiler.  
+     It's now declared as <TT>double</TT>.
+</OL>
+
+There were also numerous minor cleanups of program code and documentation.
+
+<H2>Old release of 2000-03-19.</H2>
+
+This was the first public release.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

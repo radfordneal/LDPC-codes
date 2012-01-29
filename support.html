@@ -1,0 +1,100 @@
+<HTML><HEAD>
+
+<TITLE> Support Programs </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Support Programs </H1>
+
+The following programs provide support for testing and performance
+assessment.
+
+
+<P><A NAME="rand-src"><HR><B>rand-src</B>: Generate random message bits.
+
+<BLOCKQUOTE><PRE>
+rand-src <I>source-file seed n-bits</I>
+</PRE></BLOCKQUOTE>
+
+<P>Creates a file of random messages bits called
+<TT><I>source-file</I></TT>, which is suitable for testing the
+correctness and performance of other programs.  The bits in the file
+are independent, and are equally likely to be 0 or 1.  They are
+generated pseudo-randomly based on <TT><I>seed</I></TT>.  The actual
+random number seed used will be <TT><I>seed</I></TT> times 10 plus 2,
+so that the stream of pseudo-random numbers will not be the same as
+any that might have been used by another program.
+
+<P>The <TT><I>n-bits</I></TT> argument specifies the number of bits to
+produce.  It can be a single number, or it can consist of a block size
+and a number of blocks, written with <TT>x</TT> separating these
+numbers, with no spaces.  Each block is written as a single line, with
+the bits in the block represented by the characters '0' and '1', with
+no intervening spaces.  If the bit count is given by a single number,
+the block size is assumed to be one.
+
+<P><B>Example:</B> The following command produces a file containing 
+3 blocks, each consisting of 15 random bits, produced using the pseudo-random
+number stream identified by the <TT><I>seed</I></TT> of 17:
+<UL><PRE>
+<LI>rand-src rsrc 17 15x3
+</PRE></UL>
+The contents of the file <TT>rsrc</TT> after this command might be something
+like the following:
+<BLOCKQUOTE><PRE>
+111011000110000
+010010110010111
+100000000000111
+</BLOCKQUOTE></PRE>
+
+
+<P><A NAME="verify"><HR><B>verify</B>: Verify that decoded blocks are 
+codewords, and that they match the source.
+
+<BLOCKQUOTE><PRE>
+verify [ -t ] <I>pchk-file decoded-file</I> [ <I>gen-file</I> [ <I>source-file</I> ] ]
+</PRE></BLOCKQUOTE>
+
+<P>Checks whether or not the blocks in <TT><I>decoded-file</I></TT>
+are codewords, according to the parity check matrix in
+<TT><I>pchk-file</I></TT>.  If <TT><I>gen-file</I></TT> is specified,
+the message bits of the blocks are also checked against the
+corresponding blocks of <TT><I>source-file</I></TT>, or against zero
+if <TT><I>source-file</I></TT> is not given.  (Normally, one would
+leave out <TT><I>source-file</I></TT> only if the <A
+HREF="channel.html#transmit"><TT>transmit</TT></A> command was used
+with an argument specifying that zeros are to be transmitted, rather
+than a file of encoded data.)
+
+<P>A summary of the results is displayed on standard error, giving the
+total numbers of blocks, the number with parity check errors, and, if
+<TT><I>gen-file</I></TT> was specified, the number of blocks with
+source errors and the number with errors of both kinds.  If 
+<TT><I>gen-file</I></TT> was specified, a second
+summary line displays the bit error rate from
+comparing the decoded message bits with the true message bits (zeros
+if no <TT><I>source file</I></TT> was given).
+
+<P>If the <B>-t</B> option is given, block-by-block results are
+printed on standard output in two or three columns, giving the block
+number (from zero), the number of parity check errors for that block,
+and the number of errors in source bits.  The last column is omitted
+if <TT><I>gen-file</I></TT> is not specified.  The columns are
+preceded by a line of headers, so the file is suitable for reading
+into the S-Plus or R statistics packages, with a command such as
+<BLOCKQUOTE><PRE>
+data <- read.table(<I>file</I>,header=T)
+</PRE></BLOCKQUOTE>
+
+<P>Warning messages are displayed on standard error if the number of
+bits in <TT><I>decoded-file</I></TT> is not a multiple of the block
+length, or if <TT><I>source-file</I></TT> is too short.  Newlines
+in these files are ignored, even though they would normally occur
+at the ends of blocks.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

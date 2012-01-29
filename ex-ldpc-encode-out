@@ -1,0 +1,47 @@
+
+make-ldpc ex-ldpc-encode.pchk 200 400 1 evenboth 3 
+
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genf sparse first
+Number of 1s per check in L is 6.4, U is 6.4, B is 3.0, total is 15.8
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genc sparse mincol
+Number of 1s per check in L is 3.0, U is 3.3, B is 3.0, total is 9.3
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genp sparse minprod
+Number of 1s per check in L is 2.4, U is 3.2, B is 3.0, total is 8.6
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.gend dense ex-ldpc-encode.genp
+Number of 1s per check in Inv(A) X B is 69.2
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genm mixed ex-ldpc-encode.genp
+Number of 1s per check in Inv(A) is 64.7, in B is 3.0, total is 67.7
+
+rand-src  ex-ldpc-encode.src 1 200x10
+
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genf ex-ldpc-encode.src \
+          ex-ldpc-encode.encf
+Encoded 10 blocks, source block size 200, encoded block size 400
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genc ex-ldpc-encode.src \
+          ex-ldpc-encode.encc
+Encoded 10 blocks, source block size 200, encoded block size 400
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genp ex-ldpc-encode.src \
+          ex-ldpc-encode.encp
+Encoded 10 blocks, source block size 200, encoded block size 400
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.gend ex-ldpc-encode.src \
+          ex-ldpc-encode.encd
+Encoded 10 blocks, source block size 200, encoded block size 400
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genm ex-ldpc-encode.src \
+          ex-ldpc-encode.encm
+Encoded 10 blocks, source block size 200, encoded block size 400
+
+cmp ex-ldpc-encode.encp ex-ldpc-encode.encd
+cmp ex-ldpc-encode.encp ex-ldpc-encode.encm
+
+verify    ex-ldpc-encode.pchk ex-ldpc-encode.encf ex-ldpc-encode.genf \
+          ex-ldpc-encode.src
+Block counts: tot 10, with chk errs 0, with src errs 0, both 0
+Bit error rate (on message bits only): 0.000e+00
+verify    ex-ldpc-encode.pchk ex-ldpc-encode.encc ex-ldpc-encode.genc \
+          ex-ldpc-encode.src
+Block counts: tot 10, with chk errs 0, with src errs 0, both 0
+Bit error rate (on message bits only): 0.000e+00
+verify    ex-ldpc-encode.pchk ex-ldpc-encode.encp ex-ldpc-encode.genp \
+          ex-ldpc-encode.src
+Block counts: tot 10, with chk errs 0, with src errs 0, both 0
+Bit error rate (on message bits only): 0.000e+00

@@ -1,0 +1,99 @@
+<HTML><HEAD>
+
+<TITLE> Detailed Decoding Trace Information </TITLE>
+
+
+</HEAD><BODY>
+
+<H1> Detailed Decoding Trace Information </H1>
+
+The <B>-T</B> option to <A HREF="decoding.html#decode"><TT>decode</TT></A>
+causes a detailed trace of information on the process of decoding to
+be written to standard output, in a multi-column format, with the first
+line containing the headers for each column.  This format is suitable
+for reading into S-Plus or R. 
+
+The first column is always the number of the block being decoded;
+several lines may be output for each block.  The other columns vary
+with the decoding method used, as described below.
+
+
+<H2>Enum-bit and Enum-block decoding methods</H2>
+
+For source messages with <I>K</I> bits, 2<SUP><I>K</I></SUP> lines are output
+for each block, containing the following information:
+<BLOCKQUOTE>
+<TABLE>
+<tr align="left" valign="top">
+  <td> <B>block</B> </td> 
+  <td>The number of the block, from zero</td></tr>
+<tr align="left" valign="top">
+  <td> <B>decoding</B> </td> 
+  <td>A possible decoding for the message bits, expressed as a hexadecimal 
+      number.  The other bits are determined by the message bits.</td></tr>
+<tr align="left" valign="top">
+  <td> <B>likelihood</B> </td>
+  <td>The likelihood for this decoding (ie, the probability of obtaining
+      the data received if this was the message sent).</td></tr>
+</TABLE>
+</BLOCKQUOTE>
+
+For these methods, the number of "iterations" (output with the
+<B>-t</B> option) is always 2<SUP><I>K</I></SUP>.
+
+
+<H2>Prprp decoding method</H2>
+
+Each block results in one line of output for the initial state (based
+on individual likelihood ratios), and one line for each subsequent
+iteration, containing the following information:
+<BLOCKQUOTE>
+<TABLE>
+<tr align="left" valign="top">
+  <td> <B>block</B> </td> 
+  <td>The number of the block, from zero</td></tr>
+<tr align="left" valign="top">
+  <td> <B>iter</B> </td> 
+  <td>The number of an iteration, zero for the initial state.</td></tr>
+<tr align="left" valign="top">
+  <td> <B>changed</B> </td>
+  <td>The number of bits in the decoding that differ from the bit that would
+      be chosen based just on the likelihood ratio for that bit.  Bits whose
+      likelihood ratios are exactly one contribute 0.5 to this 
+      count.  (Likelihood ratios of exactly one can arise when the output
+      of an AWGN channel rounds to exactly 0.00.)</td></tr>
+<tr align="left" valign="top">
+  <td> <B>perrs</B> </td>
+  <td>The number of parity check errors in the current tentative 
+      decoding.</td></tr>
+<tr align="left" valign="top">
+  <td> <B>loglik</B> </td>
+  <td>The log likelihood of the current tentative decoding.</td></tr>
+<tr align="left" valign="top">
+  <td> <B>Eperrs</B> </td>
+  <td>The expected number of parity check errors in a decoding found
+      by randomly picking a value for each bit, independently, according
+      to the current bit probabilities.</td></tr>
+<tr align="left" valign="top">
+  <td> <B>Eloglik</B> </td>
+  <td>The expected log likelihood of a decoding found by randomly picking
+      a value for each bit, independently, according to the current bit 
+      probabilities.
+  </td></tr>
+<tr align="left" valign="top">
+  <td> <B>entropy</B> </td>
+  <td>The entropy (in bits) of the distribution defined by the current bit
+      probablities, assumed to apply to bits independently.</td></tr>
+</TABLE>
+</BLOCKQUOTE>
+
+The number of "iterations" (output with the <B>-t</B> option) is 
+the obvious count of probability propagation iterations.  The 
+initial state does not count as an iteration.
+
+<HR>
+
+<A HREF="decoding.html">Back to decoding documentation</A><BR>
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

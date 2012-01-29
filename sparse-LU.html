@@ -1,0 +1,90 @@
+<HTML><HEAD>
+
+<TITLE> Sparse LU Decomposition Methods </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Sparse LU Decomposition Methods </H1>
+
+<P>The sparse modulo-2 matrix LU decomposition routine <A
+HREF="mod2sparse.html#decomp"><TT>mod2sparse_decomp</TT></A> (which
+is used by the <A HREF="encoding.html#make-gen"><TT>make-gen</TT></A>
+program when it is asked to create a sparse generator matrix) tries to
+find an sub-matrix of a matrix (for <TT>make-gen</TT>, the parity
+check matrix), and an ordering of rows and columns for this
+sub-matrix, that leads to the lower-triangular matrix <B>L</B> and the
+upper-triangular matrix <B>U</B> making up the LU decomposition being
+as sparse as possible.  Finding an optimal solution is too difficult,
+so instead a heuristic strategy is used.  
+
+<P>The overall algorithm finds <B>L</B> and <B>U</B> a column at a
+time, from left to right (as reordered, in the case of <B>U</B>).  As
+this is done, a copy, <B>B</B>, of the original matrix is modified.
+To create column <I>i</I> of <B>L</B> and <B>U</B>, some element with
+value 1 in <B>B</B> whose row and column indexes, after reordering,
+are both greater than <I>i</I> is found.  The row and column of this
+element are considered to come next in the reordering, and the
+contents of the column containing this element is copied to <B>L</B>
+and <B>U</B> (upper elements going to <B>U</B>, lower to <B>L</B>).
+The row containing this element is then added to some later rows so as
+to clear the lower part of this column to zeros.
+
+<P>At the first step of this process - selecting an element with value
+1 from the later rows and columns - there will often be several
+possibilities.  Different choices can lead to the final result being
+more or less sparse.  The possible strategies for picking an element
+are identified by the constants <TT>Mod2sparse_first</TT>,
+<TT>Mod2sparse_mincol</TT>, and <TT>Mod2sparse_minprod</TT>.  These
+strategies operate as follows:
+
+<P><TT>Mod2sparse_first</TT>
+<BLOCKQUOTE>
+Select the first element with value 1 that is encountered in a top
+to bottom, left to right search.
+</BLOCKQUOTE>
+
+<P><TT>Mod2sparse_mincol</TT>
+<BLOCKQUOTE>
+Select the first element with value 1 that is contained in a column
+of <B>B</B> that has the smallest number of 1s of any column.
+</BLOCKQUOTE>
+
+<P><TT>Mod2sparse_minprod</TT>
+<BLOCKQUOTE>
+Select an element with value 1 for which the product of the number of
+1s in that row of <B>B</B> minus one times the number of 1s in that
+column of <B>B</B> minus one is as small as possible.
+</BLOCKQUOTE>
+
+<P>The <B>abandon_number</B> and <B>abandon_when</B> parameters can
+modify the basic strategy.  If <B>abandon_number</B> is greater than
+zero, then after <B>abandon_when</B> columns have been selected,
+<B>abandon_number</B> of the remaining columns are abandoned as
+candidates for possible future selection, the abandoned columns being
+those with the greatest number of entries.  Abandoning such columns
+saves space and time, but may make the final result less sparse than
+it would otherwise be, and can possibly result in the matrix appearing
+to have lower rank than it actually has.
+
+<P>The methods described here are fairly straightforward adaptations
+of standard methods for sparse square matrices of reals, as described, for 
+example, in 
+<BLOCKQUOTE>
+  I. S. Duff, A. M. Erisman, J. K. Reid (1986) <I>Direct Methods for
+  Sparse Matrices</I>, Oxford: Clarendon Press.
+</BLOCKQUOTE>
+In the coding context, however, we are interested in matrices of
+modulo-2 elements, and it is enough to find a sparse LU decomposition
+of any square sub-matrix that can be obtained by selecting columns of
+the rectangular parity check matrix.  I talked about the application
+of sparse matrix methods to encoding of LDPC codes at the 1999 IMA
+workshop on Codes, Systems and Graphical Models (see the <A
+HREF="refs.html">references</A>).
+
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Example of decoding a (7,4) Hamming code using exhaustive enumeration and
+# probability propagation, with an Additive White Gaussian Noise channel with 
+# noise standard deviation of 0.5, for which Eb/N0 = 5.44 dB.
+#
+# Testing is done by transmitting zero blocks, which is sufficient because 
+# both the channel and the decoding procedure are symmetrical.  WARNING: But
+# things can easily become non-symmetrical with bugs, so this technique should
+# be used with caution, and only when necessary for performance reasons. 
+# Decoding is done three times, once minimizing block error probability, once 
+# minimizing bit error probability, and once by up to 200 iterations of
+# probability propagation.
+
+set -e  # Stop if an error occurs
+set -v  # Echo commands as they are read
+
+make-pchk ex-ham7a.pchk 3 7 0:0 0:3 0:4 0:5 1:1 1:3 1:4 1:6 2:2 2:4 2:5 2:6
+make-gen  ex-ham7a.pchk ex-ham7a.gen dense
+transmit  7x100000 ex-ham7a.rec 1 awgn 0.5
+
+# DECODE BY ENUMERATION TO MINIMIZE BLOCK ERROR PROBABILITY
+
+decode    ex-ham7a.pchk ex-ham7a.rec ex-ham7a.dec-blk awgn 0.5 \
+          enum-block ex-ham7a.gen
+verify    ex-ham7a.pchk ex-ham7a.dec-blk ex-ham7a.gen 
+
+# DECODE BY ENUMERATION TO MINIMIZE BIT ERROR PROBABILITY
+
+decode    ex-ham7a.pchk ex-ham7a.rec ex-ham7a.dec-bit awgn 0.5 \
+          enum-bit ex-ham7a.gen
+verify    ex-ham7a.pchk ex-ham7a.dec-bit ex-ham7a.gen 
+
+# DECODE BY PROBABILITY PROPAGATION
+
+decode    ex-ham7a.pchk ex-ham7a.rec ex-ham7a.dec-prp awgn 0.5 \
+          prprp 200
+verify    ex-ham7a.pchk ex-ham7a.dec-prp ex-ham7a.gen 

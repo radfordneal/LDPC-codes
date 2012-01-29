@@ -1,0 +1,719 @@
+<HTML><HEAD>
+
+<TITLE> Sparse Modulo-2 Matrix Routines </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Sparse Modulo-2 Matrix Routines </H1>
+
+<P>This module implements operations on matrices in which the elements
+are all 0 or 1, with addition and multiplication being done modulo 2.
+The matrices are represented by doubly-linked lists of entries
+representing the elements in each row and column that are 1s, with
+other elements being assumed to be zero.  
+
+<P>This is an appropriate representation when the matrices are sparse
+(ie, 0s are much more frequent that 1s).  Matrices in which 0s and 1s
+are about equally likely may be better handled with the <A
+HREF="mod2dense.html">dense modulo-2 matrix routines</A>.  Matrices
+can be converted between these two formats using the <A
+HREF="mod2convert.html">module-2 matrix conversion routines</A>.
+
+<P>All procedures in this module display an error message on standard 
+error and terminate the program if passed an invalid argument (indicative
+of a programming error), or if memory cannot be allocated.  Errors from 
+invalid contents of a file result in an error code being returned to the 
+caller, with no message being printed by this module. 
+
+
+<A NAME="rep"><H2>Representation of sparse matrices</H2></A>
+
+<P>This module represents a non-zero element of a matrix (which must have
+the value 1, since these are modulo-2 matrices) by a node of type
+<TT>mod2entry</TT>, which contains the row and column of the element,
+pointers to the next non-zero elements above and below in its column
+and to the left and the right in its row, and two double-precision
+floating-point numbers called <B>pr</B> and <B>lr</B>, which are
+of no significance to this module, but which are used by the routines
+for <A HREF="decoding.html#prprp">decoding LDPC codes by probability
+propagation</A>.
+
+<P>The <TT>mod2sparse</TT> type represents a matrix.  It records the
+number of rows and columns in the matrix, and contains arrays of
+pointers to the <TT>mod2entry</TT> structures for the first non-zero
+element in each row and the first non-zero element in each column.
+
+<P>Matrices must be created by the <A
+HREF="#allocate"><TT>mod2sparse_allocate</TT></A> procedure, which
+returns a pointer to a <TT>mod2sparse</TT> structure.  When a matrix
+is no longer needed, the space it occupies can be freed with <A
+HREF="#free"><TT>mod2sparse_free</TT></A>.  Elements within a matrix,
+represented by <TT>mod2entry</TT> nodes, are allocated as needed, and
+if deleted, they will be reused for new elements within the same
+matrix.  The space they occupy is not reusable for other matrices or
+other purposes until the entire matrix is either freed, with <A
+HREF="#free"><TT>mod2sparse_free</TT></A>, or cleared to all zeros,
+with <A HREF="#clear"><TT>mod2sparse_clear</TT></A>, or used as
+the result matrix for copying or arithmetic operations.
+
+
+<P><B>Header files required</B>:
+<TT>mod2sparse.h</TT>
+
+
+<A NAME="dimension-sec">
+<P><HR>
+<CENTER><BIG>Dimension Macros</BIG></CENTER>
+</A>
+
+<HR>The following macros take a pointer to a mod2sparse structure as their
+argument, and return the number of rows or the number of columns in
+the matrix pointed to, which will have been fixed when the matrix was
+created with <A HREF="#allocate">mod2sparse_allocate</A>:
+<BLOCKQUOTE><PRE>
+mod2sparse_rows(m)   /* Returns the number of rows in m */
+
+mod2sparse_cols(m)   /* Returns the number of columns in m */
+</PRE></BLOCKQUOTE>
+
+
+<A NAME="traversal-sec">
+<P><HR>
+<CENTER><BIG>Traversal Macros</BIG></CENTER>
+</A>
+
+<HR>The following macros are used to move around a sparse matrix by
+following the pointers from one non-zero element to the next or
+previous non-zero element in the same row or column.  If such a
+movement takes one beyond the last or before first entry in a row or
+column, or if one tries to find the first or last non-zero entry in a
+row or column that has no non-zero entries, the entry returned will be
+a special one that can be identified using the
+<TT>mod2sparse_at_end</TT> macro.  If one is already at this special
+entry, moving further wraps one around to the first or last entry.
+
+<P>The macros for finding the first or last entry in a row or column
+take as their arguments a pointer to the matrix (<TT>mod2sparse
+*</TT>) and a row or column index, starting at zero.  The other macros
+take as their arguments a pointer to an entry (<TT>mod2entry *</TT>)
+within some matrix.
+
+<BLOCKQUOTE><PRE>
+mod2sparse_first_in_row(m,i) /* Returns the first entry in row i of m */
+mod2sparse_first_in_col(m,j) /* Returns the first entry in column j of m */
+
+mod2sparse_last_in_row(m,i)  /* Returns the last entry in row i of m */
+mod2sparse_last_in_col(m,j)  /* Returns the last entry in column j of m */
+
+mod2sparse_next_in_row(e)    /* Returns the entry after e in its row */
+mod2sparse_next_in_col(e)    /* Returns the entry after e in its column */
+
+mod2sparse_prev_in_row(e)    /* Returns the entry before e in its row */
+mod2sparse_prev_in_col(e)    /* Returns the entry before e in its col */
+
+mod2sparse_row(e)            /* Returns the row index of entry e */
+mod2sparse_col(e)            /* Returns the column index of entry e */
+
+mod2sparse_at_end(e)         /* Returns 1 if e is a special entry obtained 
+                                by moving past the end, returns 0 otherwise */
+</PRE></BLOCKQUOTE>
+
+
+<A NAME="alloc-sec">
+<P><HR>
+<CENTER><BIG>Allocating and Freeing Sparse Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+
+<A NAME="allocate"><HR><B>mod2sparse_allocate</B>: 
+Allocate space for a sparse module-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+mod2sparse *mod2sparse_allocate 
+( int n_rows,     /* Number of rows in matrix */
+  int n_cols      /* Number of columns in matrix */
+)
+</PRE></BLOCKQUOTE>
+
+Allocates space for a matrix with the given number of rows and
+columns, and returns a pointer to it.  The matrix will initially
+be all zero.  
+
+<P>If there is not enough memory available, a message is displayed on
+standard error and the program is terminated.  The matrix should be
+freed with <A HREF="#free"><TT>mod2sparse_free</TT></A> once it is no
+longer in use.
+
+<P><A NAME="free"><HR><B>mod2sparse_free</B>: 
+Free the space occupied by a sparse module-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_free 
+( mod2sparse *m   /* Pointer to matrix to free */
+)
+</PRE></BLOCKQUOTE>
+
+Frees the space occupied by the matrix for re-use.  The pointer passed
+should not be used afterward.  Note that space for the individual matrix
+elements (but not the matrix as a whole) is also freed when <A
+HREF="#clear"><TT>mod2sparse_clear</TT></A> is called, or the matrix
+is used as the destination for other operations.
+
+
+<A NAME="copy-clear-sec">
+<P><HR>
+<CENTER><BIG>Copying and Clearing Sparse Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+<A NAME="clear"><HR><B>mod2sparse_clear</B>: 
+Set all elements of a matrix to zero.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_clear
+( mod2sparse *m   /* Pointer to matrix to clear */
+)
+</PRE></BLOCKQUOTE>
+
+Sets all of the elements of the matrix passed to 0.  The space occupied
+by the previous non-zero elements is freed for use in other matrices, or
+other purposes.  The matrix itself is not freed, however.  To do that,
+use <A HREF="#free"><TT>mod2sparse_free</TT></A>.
+
+
+<P><A NAME="copy"><HR><B>mod2sparse_copy</B>: 
+Copy the contents of one matrix to another.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_copy
+( mod2sparse *m   /* Pointer to matrix to copy from */
+  mod2sparse *r   /* Pointer to matrix to receive data */
+)
+</PRE></BLOCKQUOTE>
+
+Copies the contents of the first matrix passed, <B>m</B>, to the
+second matrix passed, <B>r</B>, which must already have been
+allocated, and must have at least as many rows and columns as the
+first.  If <B>r</B> is larger than <B>m</B>, its elements that have
+row or column indexes greater than the dimension of <B>m</B> are set
+to zeros.  
+
+<P>The space occupied by the previous non-zero entries of <B>r</B> is
+freed for general use (which may include being reused immediately for
+the copies of the entries in <B>m</B>).
+
+
+<P><A NAME="copyrows"><HR><B>mod2sparse_copyrows</B>: 
+Copy selected rows from one matrix to another.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_copyrows
+( mod2sparse *m,  /* Pointer to matrix to copy rows from */
+  mod2sparse *r,  /* Pointer to matrix in which to store data */
+  int *rows       /* Indexes of rows, numbered from 0 */
+)
+</PRE></BLOCKQUOTE>
+
+Copies selected rows of the first matrix, <B>m</B>, to the second
+matrix, <B>r</B>, which must already have been allocated, and which
+must have at least as many columns as <B>m</B>.  The indexes of the
+rows to copy are given in order as an array of length the same as
+the number of rows in <B>r</B>; duplicates are allowed.  Row
+indexes start at 0.  These rows are copied to <B>r</B>, with the
+row indexed by the first entry in <B>rows</B> going to the
+first row of <B>r</B>, and so forth.  If <B>r</B> has more columns than 
+<B>m</B>, the extra entries in each row are set to zeros.
+
+<P>The space occupied by the previous non-zero entries of <B>r</B> is
+freed for general use (which may include being reused immediately for
+the copies of the entries in <B>m</B>).
+
+
+<P><A NAME="copycols"><HR><B>mod2sparse_copycols</B>: 
+Copy selected columns from one matrix to another.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_copycols
+( mod2sparse *m,  /* Pointer to matrix to copy columns from */
+  mod2sparse *r,  /* Pointer to matrix in which to store data */
+  int *cols       /* Indexes of columns, numbered from 0 */
+)
+</PRE></BLOCKQUOTE>
+
+Copies selected columns of the first matrix, <B>m</B>, to the second
+matrix, <B>r</B>, which must already have been allocated, and which
+must have at least as many rows as <B>m</B>.  The indexes of the
+columns to copy are given in order as an array of length the same as
+the number of columns in <B>r</B>; duplicates are allowed.  Column
+indexes start at 0.  These columns are copied to <B>r</B>, with the
+column indexed by the first entry in <B>cols</B> going to the
+first column of <B>r</B>, and so forth.  If <B>r</B> has more rows than 
+<B>m</B>, the extra entries in each column are set to zeros.
+
+<P>The space occupied by the previous non-zero entries of <B>r</B> is
+freed for general use (which may include being reused immediately for
+the copies of the entries in <B>m</B>).
+
+
+<A NAME="input-output-sec">
+<P><HR>
+<CENTER><BIG>Input and Output of Sparse Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+<A NAME="print"><HR><B>mod2sparse_print</B>: 
+Print a sparse modulo-2 matrix in human-readable form.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_print
+( FILE *f,        /* File to print to */
+  mod2sparse *m   /* Pointer to matrix to print */
+)
+</PRE></BLOCKQUOTE>
+
+The matrix is printed on standard output with one line of output per row,
+of the form
+<BLOCKQUOTE><PRE>
+<I>row</I>: <I>col col col ...</I>
+</PRE></BLOCKQUOTE>
+where <I>row</I> is the index of the row, and the <I>col</I> entries are 
+the indexes of columns that are non-zero in that row.  Row and column
+indexes start at zero.  Rows with no entries are printed with no column
+indexes after the colon.  The number of columns is not indicated in the output. 
+
+<P><A NAME="write"><HR><B>mod2sparse_write</B>: 
+Write a sparse modulo-2 matrix to a file in machine-readable format.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2sparse_write
+( FILE *f,        /* File to write data to */
+  mod2sparse *m   /* Pointer to matrix write out */
+)
+</PRE></BLOCKQUOTE>
+
+Writes a machine-readable representation the sparse matrix <B>m</B> to
+the file <B>f</B>.  The file should have been opened in binary mode
+(with a "b" in the mode passed to fopen).  The contents written will
+not be text, and will not be human-readable.  Other binary data may
+precede or follow the data for the matrix written.  
+
+<P>The data written to the file starts with the number of rows and the
+number of columns.  Following this are negative integers giving row
+indexes (starting at 1), which apply until the next row index, and
+positive integers giving column indexes (starting at 1) for a non-zero
+entry in the matrix.  The data should be readable by <A
+HREF="#read"><TT>mod2sparse_read</TT></A> even on a machine with a
+different byte-ordering.
+
+<P>The value returned by <TT>mod2sparse_write</TT> is one if the
+operation was successful, zero if an error of some sort occurred.
+
+<P><A NAME="read"><HR><B>mod2sparse_read</B>: 
+Read a sparse modulo-2 matrix from a file.</A>
+
+<BLOCKQUOTE><PRE>
+mod2sparse *mod2sparse_read
+( FILE *f,        /* File to read data from */
+)
+</PRE></BLOCKQUOTE>
+
+Reads a sparse modulo-2 matrix from the file <B>f</B>.  This file
+should have been opened in binary mode (with a "b" in the mode passed
+to fopen).  The contents of the file at the point when
+<TT>mod2sparse_read</TT> is called should have been written by <A
+HREF="#write"><TT>mod2sparse_write</TT></A>.  Other binary data may
+precede or follow this data.
+
+<P>The value returned is a pointer to the matrix read, for which space
+will have been allocated by <TT>mod2sparse_read</TT>, or zero if an
+error occurred (either an error reading the file, or data not in the
+right format).
+
+
+<A NAME="elementary-sec">
+<P><HR>
+<CENTER><BIG>Elementary Operations on Sparse Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+<A NAME="find"><HR><B>mod2sparse_find</B>: 
+Look for an entry at a given row and column.</A>
+
+<BLOCKQUOTE><PRE>
+mod2entry *mod2sparse_find
+( mod2sparse *m,  /* Matrix in which to look for entry */
+  int row,        /* Row index (from 0) */
+  int col         /* Column index (from 0) */
+)
+</PRE></BLOCKQUOTE>
+
+Looks for an entry at the given row and column in the matrix <B>m</B>,
+representing a non-zero element (ie, one with value 1).  Returns a
+pointer to this entry if it exists, or zero (a null pointer) if it 
+does not exist (ie, if that element of the matrix has value 0).
+
+<P>The search strategy is to first look at the end of the row and the
+end of the column.  The entry might be found at one of these two
+places, or it might be determinable from these end entries that no
+entry exists at the given row and column.  Otherwise, searches are
+done from the start of the row and the start of the column, in
+parallel, until an entry with the given row and column are found, or
+until it can be determined that such an entry does not exist.
+Searching in parallel ensures that the operation will be fast if
+either the row is sparse or the column is sparse.
+
+<P><A NAME="insert"><HR><B>mod2sparse_insert</B>: 
+Insert an entry at a given row and column.</A>
+
+<BLOCKQUOTE><PRE>
+mod2entry *mod2sparse_insert
+( mod2sparse *m,  /* Matrix in which to insert an entry */
+  int row,        /* Row index (from 0) */
+  int col         /* Column index (from 0) */
+)
+</PRE></BLOCKQUOTE>
+
+Adds a new entry (representing an element with value 1) at the given
+row and column position in the matrix <B>m</B>.  If such an entry
+already exists, nothing is done (this is not considered to be an
+error).  The new (or existing) entry is returned as the value of
+this procedure.
+
+<P>The search strategy is to first look at the end of the row for an
+existing entry or for the place where the new entry belongs.  If this
+fails, the row is searched from the beginning.  If an existing entry
+is found, it is returned.  Otherwise, a new entry is created, it is
+inserted in its correct place in the row, and it is inserted in its
+correct place in its column, once again by first looking at the end,
+and then if required searching from the beginning.  
+
+<P>The effect of this strategy is that a sparse matrix can be efficiently
+created by either adding entries in increasing order by row and column or in
+decreasing order by row and column.
+
+<P><A NAME="delete"><HR><B>mod2sparse_delete</B>: 
+Delete an entry from a sparse modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_delete
+( mod2sparse *m,  /* Matrix in which to delete an entry */
+  mod2entry *e    /* Entry to delete - MUST be in m */
+)
+</PRE></BLOCKQUOTE>
+
+Deletes the entry <B>e</B> from the sparse matrix <B>m</B>, which
+effectively sets to zero the element of the matrix that this entry
+corresponded to.  The entry is freed for future use in the same
+matrix, but not (immediately, at least) for use in other matrices, or
+generally.  The pointer to this entry should not be used again once
+it is deleted.
+
+<P>The time required for this operation does not depend on how many
+entries are currently in the matrix.
+
+<P><B>Warning:</B> It is an error if <B>e</B> is not an entry of
+<B>m</B>.  This error is not currently diagnosed, but doing this may
+cause serious problems, as it may lead later to entries for <B>m</B>
+being erroneously freed when the matrix to which <B>e</B> properly
+belongs is freed.
+
+<A NAME="arith-sec">
+<P><HR>
+<CENTER><BIG>Sparse Modulo-2 Matrix Arithmetic and Comparison</BIG></CENTER>
+</A>
+
+<A NAME="transpose"><HR><B>mod2sparse_transpose</B>: 
+Compute the transpose of a sparse modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_transpose
+( mod2sparse *m,  /* Matrix to compute transpose of */
+  mod2sparse *r   /* Result of transpose operation */
+)
+</PRE></BLOCKQUOTE>
+
+Stores the transpose of its first argument, <B>m</B>, in the matrix
+pointed to by its second argument, <B>r</B>, which must already have
+been allocated, and which must have as many rows as <B>m</B> has
+columns, and as many columns as <B>m</B> has rows.  The two matrices
+<B>m</B> and <B>r</B> must not be the same (ie, the two pointers
+passed must be different).  
+
+<P>The space occupied by the previous non-zero entries of <B>r</B> is
+freed for general use.
+
+<P><A NAME="add"><HR><B>mod2sparse_add</B>: 
+Add two sparse modulo-2 matrices.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_add
+( mod2sparse *m1, /* Left operand of add */
+  mod2sparse *m2, /* Right operand of add */
+  mod2sparse *r   /* Place to store result of add */
+)
+</PRE></BLOCKQUOTE>
+
+Adds matrices <B>m1</B> and <B>m2</B>, storing the result in the
+matrix pointed to by <B>r</B>.  All three matrices must have the same
+numbers of rows and columns.  It is permissible for <B>r</B> to be the
+same as <B>m1</B> and/or <B>m2</B>.  Neither of the first two matrices is
+changed by this procedure (unless they are the same as <B>r</B>).
+
+<P>The space occupied by the previous non-zero entries of <B>r</B> is
+freed for general use.
+
+
+<P><A NAME="multiply"><HR><B>mod2sparse_multiply</B>: 
+Multiply two sparse modulo-2 matrices.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_multiply 
+( mod2sparse *m1, /* Left operand of multiply */
+  mod2sparse *m2, /* Right operand of multiply */
+  mod2sparse *r   /* Place to store result of multiply */
+)
+</PRE></BLOCKQUOTE>
+
+Does a matrix multiplication of <B>m1</B> by <B>m2</B>, and stores the
+result in the matrix pointed to by <B>r</B>.  The matrices must have
+compatible numbers of rows and columns.  Neither of the first two
+matrices is changed by this procedure.  The result matrix, <B>r</B>,
+must not be the same as either <B>m1</B> or <B>m2</B>.
+
+<P>The space occupied by the previous non-zero entries of <B>r</B> is
+freed for general use.
+
+<P><A NAME="multvec"><HR><B>mod2sparse_multvec</B>: 
+Multiply a vector by a sparse modulo-2 matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_multvec
+( mod2sparse *m,  /* Pointer to matrix to multiply by, M rows, N columns */
+  char *u,        /* Pointer to unpacked vector to multiply, N long */
+  char *v         /* Pointer to unpacked result vector, M long */
+)
+</PRE></BLOCKQUOTE>
+
+Multiplies the vector <B>u</B> on the left by the sparse modulo-2
+matrix <B>m</B>, storing the result in <B>v</B>.  Both <B>u</B> and
+<B>v</B> are modulo-2 vectors, but are stored unpacked, with one bit
+per char.  Any non-zero value in <B>u</B> is equivalent to '1'.  
+The vectors <B>u</B> and <B>v</B> must not overlap.
+
+<P><A NAME="equal"><HR><B>mod2sparse_equal</B>: 
+Check whether two sparse modulo-2 matrices are equal.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2sparse_equal
+( mod2sparse *m1, /* Pointers to the two matrices */
+  mod2sparse *m2  /*   to compare                 */
+)
+</PRE></BLOCKQUOTE>
+
+Returns one if every element of <B>m1</B> is equal to the
+corresponding element of <B>m2</B>, and otherwise returns zero.  The
+two matrices must have the same number of rows and the same number of
+columns.
+
+
+<A NAME="row-col-ops-sec">
+<P><HR>
+<CENTER><BIG>Row/Column Operations on Sparse Modulo-2 Matrices</BIG>
+</CENTER></A>
+
+<A NAME="count_row"><HR><B>mod2sparse_count_row</B>: 
+Count the number of 1s in a row of a sparse matrix.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2sparse_count_row
+( mod2sparse *m,  /* Pointer to matrix */
+  int row         /* Index of row to count (from 0) */
+)
+</PRE></BLOCKQUOTE>
+
+Returns the number of 1s in the given row of the matrix, by counting
+the number of entries in that row.  
+
+<P><A NAME="count_col"><HR><B>mod2sparse_count_col</B>: 
+Count the number of 1s in a column of a sparse matrix.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2sparse_count_col
+( mod2sparse *m,  /* Pointer to matrix */
+  int col         /* Index of column to count (from 0) */
+)
+</PRE></BLOCKQUOTE>
+
+Returns the number of 1s in the given column of the matrix, by counting
+the number of entries in that column.  
+
+<P><A NAME="add_row"><HR><B>mod2sparse_add_row</B>: 
+Add a row to a row of a sparse matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_add_row
+( mod2sparse *m1, /* Matrix containing row to add to */
+  int row1,       /* Index in this matrix of row to add to */
+  mod2sparse *m2, /* Matrix containing row to add from */
+  int row2        /* Index in this matrix of row to add from */
+)
+</PRE></BLOCKQUOTE>
+
+Modifies the row with index <B>row1</B> in the matrix <B>m1</B> by
+adding to that row the row with index <B>row2</B> in the matrix
+<B>m2</B>.  The matrix <B>m1</B> must have at least as many columns as
+<B>m2</B>.  This operation is performed by inserting entries into the
+row of <B>m1</B> at positions where they exist in the row of <B>m2</B>
+but not in the row of <B>m1</B>, and deleting entries in the row of
+<B>m1</B> that exist in the same position in the row of <B>m2</B>.
+The matrix <B>m2</B> is not modified.
+
+<P><A NAME="add_col"><HR><B>mod2sparse_add_col</B>: 
+Add a column to a column of a sparse matrix.</A>
+
+<BLOCKQUOTE><PRE>
+void mod2sparse_add_col
+( mod2sparse *m1, /* Matrix containing column to add to */
+  int col1,       /* Index in this matrix of col to add to */
+  mod2sparse *m2, /* Matrix containing column to add from */
+  int col2        /* Index in this matrix of column to add from */
+)
+</PRE></BLOCKQUOTE>
+
+Modifies the column with index <B>col1</B> in the matrix <B>m1</B> by
+adding to that column the column with index <B>col2</B> in the matrix
+<B>m2</B>.  The matrix <B>m1</B> must have at least as many rows as
+<B>m2</B>.  This operation is performed by inserting entries into the
+column of <B>m1</B> at positions where they exist in the column of
+<B>m2</B> but not in the column of <B>m1</B>, and deleting entries in
+the column of <B>m1</B> that exist in the same position in the column
+of <B>m2</B>.  The matrix <B>m2</B> is not modified.
+
+
+<A NAME="lu-decomp-sec">
+<P><HR>
+<CENTER><BIG>LU Decomposition of Sparse Modulo-2 Matrices</BIG></CENTER>
+</A>
+
+<A NAME="decomp"><HR><B>mod2sparse_decomp</B>: 
+Find an LU decomposition of a sparse modulo-2 (sub-)matrix.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2sparse_decomp
+( mod2sparse *A,      /* Matrix to find LU decomposition within, M by N */
+  int K,              /* Size of sub-matrix to find LU decomposition of */
+  mod2sparse *L,      /* Matrix in which L is stored, M by K */
+  mod2sparse *U,      /* Matrix in which U is stored, K by N */
+  int *rows,          /* Array where row indexes are stored, M long */
+  int *cols,          /* Array where column indexes are stored, N long */
+  mod2sparse_strategy strategy, /* Strategy to follow in picking rows/columns */
+  int abandon_number, /* Number of columns to abandon at some point */
+  int abandon_when    /* When to abandon these columns */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Takes as input a matrix, <B>A</B>, having <I>M</I> rows and
+<I>N</I> columns, and an integer <I>K</I>.  Finds an LU decomposition
+of a <I>K</I> by <I>K</I> sub-matrix of <B>A</B>.  The decomposition
+is stored in the matrix <B>L</B>, with <I>M</I> rows and <I>K</I>
+columns, and the matrix <B>U</B>, with <I>K</I> rows and <I>N</I>
+columns.  The product of <B>L</B> and <B>U</B> will be equal to the
+<I>K</I> by <I>K</I> submatrix of <B>A</B> obtained by taking only
+rows and columns that are given in the first <I>K</I> elements of the
+<B>rows</B> and <B>cols</B> arrays, which are set by this procedure,
+with this sub-matrix distributed over the original <I>M</I> rows and
+<I>N</I> columns.  Furthermore, the ordering of the row and column
+indexes in these arrays will be set so that if the rows of <B>L</B>
+and the columns of <B>U</B> were rearranged in this order, <B>L</B>
+would be lower triangular, with zeros in rows past row <I>K</I>, and
+<B>U</B> would be upper triangular, with zeros in columns past column
+<I>K</I>.  The <B>rows</B> array is <I>M</I> long, and the <B>cols</B>
+array is <I>N</I> long.  The elements in both arrays after the first
+<I>K</I> contain the indexes of the rows and columns not selected to
+be part of the sub-matrix of <B>A</B>, in arbitrary order.
+
+<P>The rows and columns of <B>A</B> are selected in order to try to
+make the LU decomposition as sparse as possible, using the strategy
+identified by the <B>strategy</B>, <B>abandon_number</B>, and
+<B>abandon_when</B> parameters.  The possible strategies are
+<TT>Mod2sparse_first</TT>, <TT>Mod2sparse_mincol</TT>, and
+<TT>Mod2sparse_minprod</TT>.  If <B>abandon_number</B> is greater than
+zero, it is possible that the matrix will appear to have linearly
+dependent rows when it actually does not.  See the <A
+HREF="sparse-LU.html">discussion of sparse LU decomposition
+methods</A> for details about these strategies.
+
+<P>If <B>A</B> is not of rank <I>K</I> or more, <B>L</B> will contain
+some number less than <I>K</I> of non-zero columns, and <B>U</B> will
+contain an equal number of non-zero rows.  The entries in the
+<B>rows</B> and <B>cols</B> arrays for the extra zero rows or columns
+will be arbitrary (but valid).  The number of extra zero columns is
+returned as the value of this procedure (hence a return value of zero
+indicates that a <I>K</I> by <I>K</I> sub-matrix of full rank was
+found).
+
+<P>The matrix <B>A</B> is not altered.  The previous contents of 
+<B>L</B> and <B>U</B> are cleared. 
+
+<P><A NAME="forward_sub"><HR><B>mod2sparse_forward_sub</B>: 
+Solve a lower-triangular system by forward substitution.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2sparse_forward_sub
+( mod2sparse *L,  /* Matrix that is lower triangular after reordering */
+  int *rows,      /* Array of indexes (from 0) of rows for new order */
+  char *x,        /* Vector on right of equation, also reordered */
+  char *y         /* Place to store solution */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Solves the system of equations <B>Ly</B>=<B>x</B> for <B>y</B> by
+forward substitution, based on <B>L</B> being lower triangular after
+its rows are reordered according to the given index array.  The
+vectors <B>x</B> and <B>y</B> are stored unpacked, one bit per
+character.  If <B>L</B> is <I>M</I> by <I>K</I>, then <B>x</B> should
+be <I>M</I> long, but only the <I>K</I> bits indexed by <B>rows</B>
+are looked at.  The solution vector, <B>y</B>, must be <I>K</I> long.
+Only <I>K</I> rows of <B>L</B> are used, as also determined by the
+<I>K</I> indexes in the <B>rows</B> argument.  If <B>rows</B> is null,
+the first <I>K</I> rows of <B>L</B> and the first <I>K</I> elements of
+<B>x</B> are used.
+
+<P>If the matrix <B>L</B> does not have 1s on its diagonal (after row
+rearrangement), there may be no solution, depending on what <B>x</B>
+is.  If no solution exists, this procedure returns zero, otherwise it
+returns one.  Any arbitrary bits in the solution are set to zero.
+
+<P><A NAME="backward_sub"><HR><B>mod2sparse_backward_sub</B>: 
+Solve an upper-triangular system by backward substitution.</A>
+
+<BLOCKQUOTE><PRE>
+int mod2sparse_backward_sub
+( mod2sparse *U,  /* Matrix that is upper triangular after reordering */
+  int *cols,      /* Array of indexes (from 0) of columns for new order */
+  char *y,        /* Vector on right of equation */
+  char *z         /* Place to store solution, also reordered */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Solves <B>Uz</B>=<B>y</B> for <B>z</B> by backward substitution,
+based on <B>U</B> being upper triangular after its columns are
+reordered according to the given index array.  The vectors <B>y</B>
+and <B>z</B> are stored unpacked, one bit per character.  If <B>U</B>
+is <I>K</I> by <I>N</I>, then the solution vector, <I>z</I>, should be
+<I>N</I> long, but only the <I>K</I> bits indexed by <B>cols</B> are
+set.  The vector <B>y</B> must be <I>K</I> long.  Only <I>K</I> columns
+of <B>U</B> are used, as also determined by the <I>K</I> indexes in
+the <B>cols</B> argument.  The other columns of <B>U</B> must be zero
+(this is not checked, but is necessary for the method used to work).
+If <B>cols</B> is null, the first <I>K</I> columns of <B>U</B> and the
+first <I>K</I> elements of <B>z</B> are used.
+
+<P>If the  matrix <B>U</B> does  not  have 1s  on its diagonal  (after
+column rearrangement) there  may be no  solution, depending on what  y
+is.  If no solution exists, this procedure  returns zero, otherwise it
+returns one.  Any arbitrary bits in the solution are set to zero.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

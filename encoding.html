@@ -1,0 +1,278 @@
+<HTML><HEAD>
+
+<TITLE> Encoding Message Blocks </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Encoding Message Blocks </H1>
+
+To use a code to send messages, we must define a mapping from a bit
+vector, <B>s</B>, of length <I>K</I>, representing a source message,
+to a codeword, <B>x</B>, of length <I>N</I>&gt;<I>K</I>.  We will
+consider only linear mappings, which can be written in the form
+<B>x</B>=<B>G</B><SUP><SMALL>T</SMALL></SUP><B>s</B>, where <B>G</B>
+is a <I>generator matrix</I>.  For a code with parity check matrix
+<B>H</B>, whose codewords satisfy <B>Hx</B>=<B>0</B>, the generator
+matrix must satisfy <B>HG</B><SUP><SMALL>T</SMALL></SUP>=<B>0</B>.
+This software assumes that the number of rows in the parity check
+matrix, <I>M</I>, is equal to <I>N-K</I>, as would normally be the
+case.
+
+<P>This software deals only with <I>systematic</I> encodings, in which
+the <I>K</I> bits of <B>s</B> are copied unchanged to some subset of
+the <I>N</i> bits of <B>x</B> (the <I>message bits</I>), and the
+remaining <I>M=N-K</I> <I>check bits</I> of <B>x</B> are then set so
+as to make the result a codeword.  For a linear code, a systematic
+encoding scheme always exists, for some choice of which bits of a
+codeword are message bits.  It is conventional to rearrange the order
+of the bits in a codeword so that the message bits come first.  The
+first <I>K</I> columns of the <I>K</I> by <I>N</I> generator matrix
+will then be the identity matrix.
+
+<P>However, this software does <I>not</I> assume that the message bits
+come first, since different encoding methods prefer different
+locations for the message bits.  Instead, a vector of indexes of where
+each message bit is located within a codeword is recorded in a file
+along with a representation of the part of the generator matrix that
+produces the check bits.  More than one such generator matrix file can
+be created for a single parity check file, in which the locations of
+the message bits may be different.  Decoding of a received message
+into a codeword (with <A
+HREF="decoding.html#decode"><TT>decode</TT></A>) does not depend on
+knowing which are the message bits, though this does need to be known
+in order to reconstruct the original message (with <A
+HREF="decoding.html#extract"><TT>extract</TT></A>).
+
+<P>This software stores representations of generator matrices in files
+in a format that is not human-readable (except by using the <A
+HREF="#print-gen"><TT>print-gen</TT></A> program).  However, these
+files <I>are</I> readable on a machine with a different architecture
+than they were written on.
+
+
+<A NAME="gen-rep"><H2>Generator matrix representations</H2></A>
+
+<P>For simplicity of exposition, it will be assumed for the next few
+paragraphs that the message bits are located at the <I>end</I> of the
+codeword, so a codeword can be divided into <I>M</I> check bits,
+<B>c</B>, followed by <I>K</I> message bits, <B>s</B>.
+
+<P>On the above assumption, the parity check matrix, <B>H</B>, can be divided 
+into an <I>M</I> by <I>M</I> matrix <B>A</B> occupying 
+the first <I>M</I> columns of <B>H</B> and an <I>M</I> by <I>K</I> matrix 
+<B>B</B> occupying the remaining columns of <B>H</B>.  The requirement that 
+a codeword, <B>x</B>, satisfy all parity checks (ie, that <B>Hx</B>=<B>0</B>)
+can then be written as
+<BLOCKQUOTE>
+  <B>Ac</B> + <B>Bs</B> = <B>0</B>
+</BLOCKQUOTE>
+Provided that <B>A</B> is non-singular, it follows that
+<BLOCKQUOTE>
+  <B>c</B> = <B>A</B><SUP><SMALL>-1</SMALL></SUP><B>Bs</B>
+</BLOCKQUOTE>
+<B>A</B> may be singular for some choices of which codeword bits are message 
+bits, but a choice for which <B>A</B> is non-singular always exists if the 
+rows of <B>H</B> are linearly independent.  It is possible, however, that the 
+rows of <B>H</B> are not linearly independent (ie, some rows are redundant).  
+This is an exceptional
+and not particularly interesting case, which is mostly ignored in the
+descriptions below; see the discussion of <A HREF="dep-H.html">linear
+dependence in parity check matrices</A> for the details.
+
+<P>The equation <B>c</B> = <B>A</B><SUP><SMALL>-1</SMALL></SUP><B>Bs</B>
+defines what the check bits should be, but actual computation of these
+check bits can be done in several ways, three of which are implemented
+in this software.  Each method involves a different representation of
+the generator matrix.  (Note that none of these methods involves the
+explicit representation of the matrix <B>G</B> mentioned above.)
+
+<P>In the <I>dense representation</I>, the <I>M</I> by <I>K</I> matrix
+<B>A</B><SUP><SMALL>-1</SMALL></SUP><B>B</B> is computed, and stored
+in a dense format (see the <A HREF="mod2dense.html">dense modulo-2
+matrix package</A>).  A message is encoded by multiplying the 
+source bits, <B>s</B>, by this matrix to obtain the required check bits.
+
+<P>In the <I>mixed representation</I>, the <I>M</I> by <I>M</I> matrix
+<B>A</B><SUP><SMALL>-1</SMALL></SUP> is computed and stored in a dense
+format, and the <I>M</I> by <I>K</I> matrix <B>B</B>, the right
+portion of the parity check matrix, is also stored, in a sparse format
+(see the <A HREF="mod2dense.html">sparse modulo-2 matrix package</A>).
+To encode a message, the source vector <B>s</B> is first multiplied on
+the left by <B>B</B>, an operation which can be done very quickly if
+<B>B</B> is sparse (as it will be for LDPC codes).  The result is then
+multiplied on the left by <B>A</B><SUP><SMALL>-1</SMALL></SUP>.  If
+<I>M</I>&lt;<I>K</I>, the total time may be less than when using the
+dense representation above.
+
+<P>The <I>sparse representation</I> goes further, and avoids
+explicitly computing <B>A</B><SUP><SMALL>-1</SMALL></SUP>, which tends
+to be dense even if <B>H</B> is sparse.  Instead, a <I>LU
+decomposition</I> of <B>A</B> is found, consisting of a lower
+triangular matrix <B>L</B> and an upper triangular matrix <B>U</B> for
+which <B>LU</B>=<B>A</B>. The effect of multiplying <B>Bs</B>=<B>z</B> by
+<B>A</B><SUP><SMALL>-1</SMALL></SUP> can then be obtained by
+<BLOCKQUOTE> 
+  Solving <B>Ly</B>=<B>z</B> for <B>y</B> using forward substitution.<BR> 
+  Solving <B>Uc</B>=<B>y</B> for <B>c</B> using backward substitution.  
+</BLOCKQUOTE> 
+Both of these operations will be fast if <B>L</B> and <B>U</B> are
+sparse.  Heuristics are used to try to achieve this, by rearranging the 
+rows and columns of <B>H</B> in the process of selecting <B>A</B> and 
+finding its LU decomposition.
+
+
+<P><A NAME="make-gen"><HR><B>make-gen</B>: Make a generator matrix from
+a parity check matrix.
+
+<BLOCKQUOTE><PRE>
+make-gen <I>pchk-file gen-file method</I>
+</PRE>
+<BLOCKQUOTE>
+where <TT><I>method</I></TT> is one of the following:
+<BLOCKQUOTE><PRE>
+sparse [ first | mincol | minprod ] [ <I>abandon-num abandon-when</I> ]
+
+dense [ <I>other-gen-file </I> ]
+
+mixed [ <I>other-gen-file </I> ]
+</PRE></BLOCKQUOTE>
+</BLOCKQUOTE>
+</BLOCKQUOTE>
+
+<P>Finds a generator matrix for the code whose parity check matrix is
+in <TT><I>pchk-file</I></TT>, and writes a representation of this
+generator matrix to <TT><I>gen-file</I></TT>.  The remaining arguments
+specify what representation of the generator matrix is to be used (see
+the <A HREF="#gen-rep">description above</A>), and the method to be
+used in finding it.  A message regarding the density of 1s in the
+resulting representation is displayed on standard error. For a sparse
+representation, a smaller number of 1s will produce faster encoding.
+
+<P>All representations include a specification for how the columns of
+the parity check matrix should be re-ordered so that the message bits
+come last.  References to columns of the parity check matrix below
+refer to their order after this reordering.  For the <I>dense</I> and
+<I>mixed</I> representations, an <TT><I>other-gen-file</I></TT> may be
+specified, in which case the ordering of columns will be the same as
+the ordering stored in that file (which must produce a non-singular
+<B>A</B> matrix; redundant rows of <B>H</B> are not allowed with this
+option).  Otherwise, <TT>make-gen</TT> decides on an appropriate
+ordering of columns itself.  Note that the column rearrangement is
+recorded as part of the representation of the generator matrix; the
+parity check matrix as stored in its file is not altered.
+
+<P>The <I>dense</I> representation consists of a dense representation
+of the matrix <B>A</B><SUP><SMALL>-1</SMALL></SUP><B>B</B>, where
+<B>A</B> is the matrix consisting of the first <I>M</I> columns (after
+reordering) of the parity check matrix, and <B>B</B> is the remaining
+columns.  If <B>H</B> contains redundant rows, there is an additional
+reordering of columns of <B>A</B> in order create the same effect as
+if the redundant rows came last.
+
+<P>The <I>mixed</I> representation consists of a dense representation
+of the matrix <B>A</B><SUP><SMALL>-1</SMALL></SUP>, where <B>A</B> is
+the matrix consisting of the first <I>M</I> columns (after reordering)
+of the parity check matrix.  The remaining columns of the parity check
+matrix, making up the matrix <B>B</B>, are also part of the
+representation, but are not written to <TT><I>gen-file</I></TT>, since
+they can be obtained from <TT><I>pchk-file</I></TT>.  As for mixed
+representations, an additional reordering of columns of <B>A</B> may
+be needed if <B>H</B> has redundant rows.
+
+<P>A <I>sparse</I> representation consists of sparse representations
+of the <B>L</B> and <B>U</B> matrices, whose product is <B>A</B>, the
+first <I>M</I> columns of the parity check matrix (whose columns and
+rows may both have been reordered).  The matrix <B>B</B>, consisting
+of the remaining columns of the parity check matrix, is also part of
+the representation, but it is not written to <TT><I>gen-file</I></TT>,
+since it can be obtained from <TT><I>pchk-file</I></TT>.
+
+<P>If a sparse representation is chosen, arguments after
+<TT>sparse</TT> specify what heuristic is used when reordering columns
+and rows in order to try to make <B>L</B> and <B>U</B> as sparse as
+possible.  The default if no heuristic is specified is
+<TT>minprod</TT>.  If the <TT><I>abandon-num</I></TT> and
+<TT><I>abandon-when</I></TT> options are given, some information is
+discarded in order to speed up the process of finding <B>L</B> and
+<B>U</B>, at a possible cost in terms of how good a result is
+obtained.  For details on these heuristics, see the descriptions of <A
+HREF="sparse-LU.html">sparse LU decomposition methods</A>.
+
+<P><B>Example:</B> A dense representation of a generator matrix for the
+Hamming code created by the example for <A
+HREF="pchk.html#make-pchk"><TT>make-pchk</TT></A> can be created as follows:
+<UL><PRE>
+<LI>make-gen ham7.pchk ham7.gen dense
+Number of 1s per check in Inv(A) X B is 3.0
+</PRE></UL>
+
+
+<P><A NAME="print-gen"><HR><B>print-gen</B>: Print a representation of a 
+generator matrix.
+
+<BLOCKQUOTE><PRE>
+print-gen [ -d ] <I>gen-file</I>
+</PRE></BLOCKQUOTE>
+
+<P>Prints in human-readable form the representation of the generator
+matrix that is stored in <TT><I>gen-file</I></TT>.  The <B>-d</B>
+option causes the matrices involved to be printed in a dense format,
+even if they are stored in the file in a sparse format.  See the <A
+HREF="#gen-rep">description above</A> for details of generator matrix
+representations.  Note that the <B>L</B> matrix for a sparse representation
+will be lower triangular only after the rows are rearranged, and the <B>U</B>
+matrix will be upper triangular only after the columns are rearranged. 
+The matrix <B>B</B> that is part of the sparse
+and mixed representations is not printed, since it is not stored 
+in the <TT><I>gen-file</I></TT>, but is rather a subset of columns
+of the parity check matrix.  
+
+<P><B>Example:</B> The generator matrix for the
+Hamming code created by the example for <A
+HREF="#make-gen"><TT>make-gen</TT></A> can be printed as follows:
+<UL><PRE>
+<LI>print-gen ham7.gen
+
+Generator matrix (dense representation):
+
+Column order:
+
+   0   1   2   3   4   5   6
+
+Inv(A) X B:
+
+ 1 1 1 0
+ 1 1 0 1
+ 0 1 1 1
+</PRE></UL>
+For this example, the columns did not need to be rearranged, and hence the
+message bits will be in positions 3, 4, 5, and 6 of a codeword.
+
+<P><A NAME="encode"><HR><B>encode</B>: Encode message blocks as codewords
+
+<BLOCKQUOTE><PRE>
+encode <I>pchk-file gen-file source-file encoded-file</I>
+</PRE></BLOCKQUOTE>
+
+Encodes message blocks of length <I>K</I>, read from
+<TT><I>source-file</I></TT>, as codewords of length <I>N</I>, which
+are written to <TT><I>encoded-file</I></TT>, replacing any previous
+data in this file.  Here, <I>N</I> is the number of columns in the
+parity check matrix in <TT><I>pchk-file</I></TT>, and
+<I>K</I>=<I>N-M</I>, where <I>M</I> is the number of rows in the
+parity check matrix.  The generator matrix used, from
+<TT><I>gen-file</I></TT>, determines which bits of the codeword are
+set to the message bits, and how the remaining check bits are
+computed.  The generator matrix is created from
+<TT><I>pchk-file</I></TT> using <A HREF="#make-gen"><TT>make-gen</TT></A>.
+
+<P>A newline is output at the end of each block written to
+<TT><I>encoded-file</I></TT>.  Newlines in <TT><I>source-file</I></TT>
+are ignored.
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

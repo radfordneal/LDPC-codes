@@ -1,0 +1,87 @@
+<HTML><HEAD>
+
+<TITLE> Examples of LDPC Program Usage </TITLE>
+
+</HEAD><BODY>
+
+
+<H1> Examples of LDPC Program Usage </H1>
+
+<P>Below, are some command files containing examples of the use of
+the <A HREF="progs.html">LDPC programs</A>, together with the output I
+obtained for these examples.  Output on other machines might
+conceivably be slightly different, due to different round-off errors.
+The <A HREF="run-examples"><TT>run-examples</TT></A> script runs all the example
+scripts and compares their output with the outputs that I obtained (on
+a Pentium machine).
+
+<P><A HREF="ex-ham7b">ex-ham7b</A>, 
+output in <A HREF="ex-ham7b-out">ex-ham7b-out</A>
+<BLOCKQUOTE> 
+A (7,4) Hamming code used with a BSC.
+Demonstrates encoding of random messages and decoding to minimize
+bit error rate by exhaustive enumeration.
+</BLOCKQUOTE>
+
+<P><A HREF="ex-ham7a">ex-ham7a</A>,
+output in <A HREF="ex-ham7a-out">ex-ham7a-out</A>
+<BLOCKQUOTE> 
+A (7,4) Hamming code used with an AWGN channel. Tested using zero messages.
+Decoded by exhaustive enumeration to minimize either block or bit error rate,
+and by probability propagation.
+</BLOCKQUOTE>
+
+<P><A HREF="ex-dep">ex-dep</A>,
+output in <A HREF="ex-dep-out">ex-dep-out</A>
+<BLOCKQUOTE> 
+Examples of how parity check matrices with linearly dependent rows (ie,
+redundant parity checks) are handled.  This is probably not of 
+great interest to most users.
+</BLOCKQUOTE>
+
+<P><A HREF="ex-ldpc-encode">ex-ldpc-encode</A>,
+output in <A HREF="ex-ldpc-encode-out">ex-ldpc-encode-out</A>
+<BLOCKQUOTE> 
+Encodes messages with an LDPC code using sparse, dense, and mixed 
+representations of the generator matrix.
+</BLOCKQUOTE>
+
+<P><A HREF="ex-ldpc36-1000a">ex-ldpc36-1000a</A>,
+output in <A HREF="ex-ldpc36-1000a-out">ex-ldpc36-1000a-out</A>
+<BLOCKQUOTE> 
+A (2000,1000) LDPC code with 3 checks per bit and 6 bits per check. 
+Three encoding methods are tried out, and the code is
+tested on an AWGN channel at various noise levels, using random messages.
+</BLOCKQUOTE>
+
+<P><A HREF="ex-ldpc36-5000a">ex-ldpc36-5000a</A>,
+output in <A HREF="ex-ldpc36-5000a-out">ex-ldpc36-5000a-out</A>
+<BLOCKQUOTE> 
+A (10000,5000) LDPC code with 3 checks per bit and 6 bits per check. 
+Tested on an AWGN channel at various noise levels, using random messages.
+Pipes are used to avoid creating lots of files.
+</BLOCKQUOTE>
+
+<P><A HREF="ex-ldpcvar-5000a">ex-ldpcvar-5000a</A>,
+output in <A HREF="ex-ldpcvar-5000a-out">ex-ldpcvar-5000a-out</A>
+<BLOCKQUOTE> 
+A (10000,5000) LDPC code with the number of checks per bit varying from 2 to 7.
+Tested on an AWGN channel at various noise levels, using random messages.
+Pipes are used to avoid creating lots of files.  Performance is better than
+for the code above in which the number of checks is the same for all bits.
+</BLOCKQUOTE>
+
+<P><A HREF="ex-wrong-model">ex-wrong-model</A>,
+output in <A HREF="ex-wrong-model-out">ex-wrong-model-out</A>
+<BLOCKQUOTE> 
+Tests what happens when messages are decoded using the wrong noise
+model, including using the right type of model but with the wrong
+noise level, and using the wrong type of model (ie, using an AWLN model
+for messages transmitted through an AWGN channel, or vice versa).
+</BLOCKQUOTE>
+
+<HR>
+
+<A HREF="index.html">Back to index for LDPC software</A>
+
+</BODY></HTML>

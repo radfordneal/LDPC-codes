@@ -1,0 +1,54 @@
+
+make-ldpc ex-ldpc36-5000a.pchk 5000 10000 2 evenboth 3 no4cycle
+Eliminated 25 cycles of length four by moving checks within column
+make-gen  ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen dense
+Number of 1s per check in Inv(A) X B is 2068.3
+rand-src  ex-ldpc36-5000a.src 1 5000x100
+
+# NOISE STANDARD DEVIATION 0.80, Eb/N0 = 1.94 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.80 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.80 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 100 valid.  Average 11.1 iterations, 11% bit changes
+Block counts: tot 100, with chk errs 0, with src errs 0, both 0
+Bit error rate (on message bits only): 0.000e+00
+
+# NOISE STANDARD DEVIATION 0.85, Eb/N0 = 1.41 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.85 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.85 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 95 valid.  Average 33.7 iterations, 12% bit changes
+Block counts: tot 100, with chk errs 5, with src errs 5, both 5
+Bit error rate (on message bits only): 2.706e-03
+
+# NOISE STANDARD DEVIATION 0.90, Eb/N0 = 0.92 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.90 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.90 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 2 valid.  Average 246.2 iterations, 10% bit changes
+Block counts: tot 100, with chk errs 98, with src errs 98, both 98
+Bit error rate (on message bits only): 7.650e-02
+
+# NOISE STANDARD DEVIATION 0.95, Eb/N0 = 0.45 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.95 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.95 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 0 valid.  Average 250.0 iterations, 9% bit changes
+Block counts: tot 100, with chk errs 100, with src errs 100, both 100
+Bit error rate (on message bits only): 1.092e-01
