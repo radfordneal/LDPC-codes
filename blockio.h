@@ -13,5 +13,7 @@
  * application.  All use of these programs is entirely at the user's own risk.
  */
 
+extern int blockio_flush;  /* Should blocks written be immediately flushed? */
+
 int  blockio_read  (FILE *, char *, int);
 void blockio_write (FILE *, char *, int);

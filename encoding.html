@@ -252,7 +252,7 @@ message bits will be in positions 3, 4, 5, and 6 of a codeword.
 <P><A NAME="encode"><HR><B>encode</B>: Encode message blocks as codewords
 
 <BLOCKQUOTE><PRE>
-encode <I>pchk-file gen-file source-file encoded-file</I>
+encode [ -f ] <I>pchk-file gen-file source-file encoded-file</I>
 </PRE></BLOCKQUOTE>
 
 Encodes message blocks of length <I>K</I>, read from
@@ -270,6 +270,11 @@ computed.  The generator matrix is created from
 <P>A newline is output at the end of each block written to
 <TT><I>encoded-file</I></TT>.  Newlines in <TT><I>source-file</I></TT>
 are ignored.
+
+<P>If the <B>-f</B> option is given, output to <TT><I>encoded-file</I></TT>
+is flushed after each block.  This allows one to use encode as a server,
+reading blocks to encode from a named pipe, and writing the encoded block
+to another named pipe.
 
 <HR>
 

@@ -46,7 +46,25 @@ int main
   char *sblk, *cblk, *chks;
   int i, n;
 
-  /* Look at arguments. */
+  /* Look at initial flag arguments. */
+
+  blockio_flush = 0;
+
+  while (argc>1)
+  {
+    if (strcmp(argv[1],"-f")==0)
+    { if (blockio_flush!=0) usage();
+      blockio_flush = 1;
+    }
+    else 
+    { break;
+    }
+
+    argc -= 1;
+    argv += 1;
+  }
+
+  /* Look at remaining arguments. */
 
   if (!(pchk_file = argv[1])
    || !(gen_file = argv[2])
@@ -151,6 +169,9 @@ int main
     /* Write encoded block to encoded output file. */
 
     blockio_write(encf,cblk,N);
+    if (ferror(encf))
+    { break;
+    }
   }
 
   fprintf(stderr,
@@ -169,6 +190,6 @@ int main
 
 void usage(void)
 { fprintf(stderr,
-   "Usage:  encode pchk-file gen-file source-file encoded-file\n");
+   "Usage:  encode [ -f ] pchk-file gen-file source-file encoded-file\n");
   exit(1);
 }

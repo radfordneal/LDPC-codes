@@ -16,6 +16,10 @@ and future releases can be obtained via
 
 <H2>Release to come.</H2>
 <OL>
+<LI> Added a -f option to encode and decode that forces flushing
+     after writing each block.  Useful for allowing encode or
+     decode to be used as a server, reading and writing blocks
+     from named pipes.
 <LI> Fixed bug in distrib.c affecting distributions with a single 
      number (thanks to Mike Vicuna for pointing it out).
 </OL>

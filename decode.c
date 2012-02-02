@@ -62,19 +62,34 @@ int main
 
   int i, j, k;
 
-  /* Look at arguments up to the decoding method specification. */
+  /* Look at initial flag arguments. */
 
   table = 0;
-  if (argc>1 && strcmp(argv[1],"-t")==0)
-  { table = 1;
+  blockio_flush = 0;
+
+  while (argc>1)
+  {
+    if (strcmp(argv[1],"-t")==0)
+    { if (table!=0) usage();
+      table = 1;
+    }
+    else if (strcmp(argv[1],"-T")==0)
+    { if (table!=0) usage();
+      table = 2;
+    }
+    else if (strcmp(argv[1],"-f")==0)
+    { if (blockio_flush!=0) usage();
+      blockio_flush = 1;
+    }
+    else 
+    { break;
+    }
+
     argc -= 1;
     argv += 1;
   }
-  if (argc>1 && strcmp(argv[1],"-T")==0)
-  { table = 2;
-    argc -= 1;
-    argv += 1;
-  }
+
+  /* Look at arguments up to the decoding method specification. */
 
   if (!(pchk_file = argv[1])
    || !(rfile = argv[2])
@@ -323,6 +338,12 @@ int main
       }
       fprintf(pf,"\n");
     }
+
+    /* Check for errors when writing. */
+
+    if (ferror(df) || pfile && ferror(pf))
+    { break;
+    }
   }
 
   /* Finish up. */
@@ -355,7 +376,7 @@ done:
 void usage(void)
 { fprintf(stderr,"Usage:\n");
   fprintf(stderr,
-"  decode [ -t ] pchk-file received-file decoded-file [ bp-file ] channel method\n");
+"  decode [ -f ] [ -t | -T ] pchk-file received-file decoded-file [ bp-file ] channel method\n");
   channel_usage();
   fprintf(stderr,
 "Method:  enum-block gen-file | enum-bit gen-file | prprp [-]max-iterations\n");

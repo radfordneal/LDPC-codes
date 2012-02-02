@@ -19,6 +19,9 @@
 #include "blockio.h"
 
 
+int blockio_flush = 0;	/* Should blocks written be immediately flushed? */
+
+
 /* READ A BLOCK OF BITS.  The bits must be given as '0' or '1' characters,
    with whitespace allowed (but not required) between bits.  Returns 0 if
    a block is read successfully, and EOF if eof or an error occurs.  If
@@ -75,4 +78,8 @@ void blockio_write
   }
 
   putc('\n',f);
+
+  if (blockio_flush)
+  { fflush(f);
+  }
 }

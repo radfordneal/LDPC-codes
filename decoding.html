@@ -184,7 +184,7 @@ reaching) the theoretical Shannon limit.
 into codewords.
 
 <BLOCKQUOTE><PRE>
-decode [ -t | -T ] <I>pchk-file received-file decoded-file</I> [ <I>bp-file</I> ] <I>channel method</I>
+decode [ -f ] [ -t | -T ] <I>pchk-file received-file decoded-file</I> [ <I>bp-file</I> ] <I>channel method</I>
 </PRE>
 <BLOCKQUOTE>
 where <TT><I>channel</I></TT> is one of:
@@ -309,6 +309,11 @@ at least slightly different bit probabilities (written to
 the decoding compared to stopping at the first valid codeword, or
 result in a failure to decode to a valid codeword even though one was 
 found earlier.
+
+<P>If the <B>-f</B> option is given, output to <TT><I>decoded-file</I></TT>
+is flushed after each block.  This allows one to use decode as a server,
+reading blocks to decode from a named pipe, and writing the decoded block
+to another named pipe.
 
 
 <P><A NAME="extract"><HR><B>extract</B>: Extract the message bits from a block.
