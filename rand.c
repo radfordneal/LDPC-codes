@@ -280,6 +280,50 @@ int rand_pickf
 }
 
 
+/* GENERATE RANDOM PERMUTATION OF INTEGERS FROM 1 TO N. */
+
+void rand_permutation
+( int *perm,		/* Place to store permutation */
+  int n			/* Number of integers to permute */
+)
+{
+  int i, j, t;
+
+  for (i = 0; i<n; i++) 
+  { perm[i] = i+1;
+  }
+
+  for (i = 0; i<n; i++)
+  { t = perm[i];
+    j = i + rand_int(n-i);
+    perm[i] = perm[j];
+    perm[j] = t;
+  }
+}
+
+
+/* POISSON GENERATOR.  The method used is simple, but not very fast.  See
+   Devroye, p. 503.  Very large means are done using Gaussian approximation. */
+
+int rand_poisson 
+( double lambda
+)
+{ int v;
+  if (lambda>10000)
+  { v = (int) (lambda + rand_gaussian()*sqrt(lambda) + 0.5);
+  }
+  else
+  { v = 0;
+    for (;;)
+    { lambda -= rand_exp();
+      if (lambda<=0) break;
+      v += 1;
+    }
+  }
+  return v;
+}
+
+
 /* GAUSSIAN GENERATOR.  Done by using the Box-Muller method, but only one
    of the variates is retained (using both would require saving more state).
    See Devroye, p. 235. 

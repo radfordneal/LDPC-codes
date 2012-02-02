@@ -43,7 +43,9 @@ double rand_uniopen (void);	/* Uniform from (0,1) */
 int rand_int (int);		/* Uniform from 0, 1, ... (n-1) */
 int rand_pickd (double *, int);	/* From 0 ... (n-1), with given distribution */
 int rand_pickf (float *, int);	/* Same as above, but with floats */
+void rand_permutation (int *, int); /* Random permutation */
 
+int rand_poisson (double);	/* Poisson with given mean */
 double rand_gaussian (void);	/* Gaussian with mean zero and unit variance */
 double rand_logistic (void);	/* Logistic centred at zero with unit width */
 double rand_cauchy (void);	/* Cauchy centred at zero with unit width */

@@ -178,6 +178,34 @@ except that the array giving the probabilities is an array of single-precision
 floating point numbers, rather than double-precision.
 
 
+<A NAME="poisson"><HR><B>rand_poisson</B>: 
+Generate a non-negative integer from a Poisson distribution.</A>
+
+<BLOCKQUOTE><PRE>
+int rand_poisson
+( double lambda  /* Mean of the Poisson distribution */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Generates a non-negative integer from the Poisson distribution with mean 
+<tt>lambda</tt>.
+
+
+<P><A NAME="permutation"><HR><B>rand_permutation</B>: Generate a random
+permutation of integers from <i>1</i> to <i>n</i>.</A>
+
+<BLOCKQUOTE><PRE>
+int rand_permutation
+( int *perm,  /* Place to store the permutation */
+  int n       /* Number of integers to permute */
+)
+</PRE></BLOCKQUOTE>
+
+<P>Stores a random permutation of the integers from <i>1</i> to <i>n</i> in the
+array perm, which must be at least <i>n</i> long.  All permutations are
+equally likely.
+
+
 <A NAME="continuous-sec">
 <P><HR>
 <CENTER><BIG>Generating continuous random variates</BIG></CENTER>
