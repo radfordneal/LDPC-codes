@@ -97,7 +97,7 @@ source bits, <B>s</B>, by this matrix to obtain the required check bits.
 <B>A</B><SUP><SMALL>-1</SMALL></SUP> is computed and stored in a dense
 format, and the <I>M</I> by <I>K</I> matrix <B>B</B>, the right
 portion of the parity check matrix, is also stored, in a sparse format
-(see the <A HREF="mod2dense.html">sparse modulo-2 matrix package</A>).
+(see the <A HREF="mod2sparse.html">sparse modulo-2 matrix package</A>).
 To encode a message, the source vector <B>s</B> is first multiplied on
 the left by <B>B</B>, an operation which can be done very quickly if
 <B>B</B> is sparse (as it will be for LDPC codes).  The result is then
