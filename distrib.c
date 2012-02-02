@@ -54,7 +54,7 @@ distrib *distrib_create
   /* Check for special case of a single number. */
 
   if (sscanf(c,"%d%c",&n,&junk)==1 && n>0)
-  { tstr = chk_alloc ( (int)(2.1+log10(n)), sizeof(*str));
+  { tstr = chk_alloc ( (int)(4.1+log10(n)), sizeof(*tstr));
     sprintf(tstr,"1x%d",n);
     d = distrib_create(tstr);
     free(tstr);
