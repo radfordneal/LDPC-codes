@@ -29,16 +29,19 @@
 */
 
 
+#include <stdint.h>		/* Has the definition of uint32_t used below */
+
 /* PACKING OF BITS INTO WORDS.  Bits are packed into 32-bit words, with
    the low-order bit coming first. */
 
-typedef unsigned long mod2word;	/* Data type that holds packed bits */
+typedef uint32_t mod2word;	/* Data type that holds packed bits. If uint32_t
+		 		   doesn't exist, change it to unsigned long */
 
 #define mod2_wordsize 32	/* Number of bits that fit in a mod2word. Can't
 				   be increased without changing intio module */
 
 #define mod2_wordsize_shift 5	/* Amount to shift by to divide by wordsize */
-#define mod2_wordsize_mask 0x1f /* What to and with to produce mod wordsize */
+#define mod2_wordsize_mask 0x1f /* What to AND with to produce mod wordsize */
 
 /* Extract the i'th bit of a mod2word. */
 

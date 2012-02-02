@@ -20,6 +20,9 @@ and future releases can be obtained via
      after writing each block.  Useful for allowing encode or
      decode to be used as a server, reading and writing blocks
      from named pipes.
+<LI> Changed mod2word type in mod2dense.c to uint32_t, to avoid
+     wasted space when long is 64 bits (thanks to Mathieu Cunche 
+     and Vincent Roca for suggesting this).
 <LI> Fixed bug in distrib.c affecting distributions with a single 
      number (thanks to Mike Vicuna for pointing it out).
 </OL>
