@@ -110,7 +110,7 @@ modules:
 # CLEAN UP ALL PROGRAMS AND REMOVE ALL FILES PRODUCED BY TESTS AND EXAMPLES.
 
 clean:
-	rm -f	core *.o ex-*.* test-file \
+	rm -f	core *.o *.exe ex-*.* test-file \
 		make-pchk alist-to-pchk pchk-to-alist \
 		make-ldpc print-pchk make-gen print-gen \
 		rand-src encode transmit decode extract verify \
