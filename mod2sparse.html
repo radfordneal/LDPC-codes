@@ -481,11 +481,11 @@ must not be the same as either <B>m1</B> or <B>m2</B>.
 <P>The space occupied by the previous non-zero entries of <B>r</B> is
 freed for general use.
 
-<P><A NAME="multvec"><HR><B>mod2sparse_multvec</B>: 
+<P><A NAME="mulvec"><HR><B>mod2sparse_mulvec</B>: 
 Multiply a vector by a sparse modulo-2 matrix.</A>
 
 <BLOCKQUOTE><PRE>
-void mod2sparse_multvec
+void mod2sparse_mulvec
 ( mod2sparse *m,  /* Pointer to matrix to multiply by, M rows, N columns */
   char *u,        /* Pointer to unpacked vector to multiply, N long */
   char *v         /* Pointer to unpacked result vector, M long */
