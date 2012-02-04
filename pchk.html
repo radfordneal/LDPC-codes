@@ -150,7 +150,7 @@ matrix in <TT><I>alist-file</I></TT> is stored in the
 check matrix to alist format.
 
 <BLOCKQUOTE><PRE>
-pchk-to-alist [ -t ] <I>pchk-file alist-file</I>
+pchk-to-alist [ -t ] [ -z ] <I>pchk-file alist-file</I>
 </PRE></BLOCKQUOTE>
 
 <P>Converts a parity check matrix stored in the sparse matrix format
@@ -161,6 +161,13 @@ format</A>, storing it in the file named <TT><I>alist-file</I></TT>.
 
 <P>If the <B>-t</B> option is given, the transpose of the parity check
 matrix is converted to alist format.  
+
+<P>If the number of 1s is not
+the same for each row or each column, the alist format specification
+says that the list of indexes of 1s for each row or column should
+be padded with zeros to the maximum number of indexes.  By default,
+<TT>pchk-to-alist</TT> does this, but output of these 0s can be
+suppressed by specifying the <B>-z</B> option.
 
 
 <P><A NAME="print-pchk"><HR><B>print-pchk</B>: Print a parity check matrix.

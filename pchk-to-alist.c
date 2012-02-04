@@ -43,13 +43,21 @@ int main
   int i, j, k;
   mod2entry *e;
   int trans;
+  int nozeros;
+  int last;
 
   trans = 0;
+  nozeros = 0;
 
   for (;;)
   {
     if (argc>1 && strcmp(argv[1],"-t")==0)
     { trans = 1;
+      argc -= 1;
+      argv += 1;
+    }
+    else if (argc>1 && strcmp(argv[1],"-z")==0)
+    { nozeros = 1;
       argc -= 1;
       argv += 1;
     }
@@ -117,9 +125,11 @@ int main
 
   for (i = 0; i<M; i++)
   { e = mod2sparse_first_in_row(H,i);
-    for (k = 0; k<mxrw; k++)
-    { fprintf (af, "%d%c", mod2sparse_at_end(e)?0:mod2sparse_col(e)+1,
-                           k==mxrw-1?'\n':' ');
+    last = 0;
+    for (k = 0; !last; k++)
+    { last = nozeros ? k==rw[i]-1 : k==mxrw-1;
+      fprintf (af, "%d%c", mod2sparse_at_end(e)?0:mod2sparse_col(e)+1,
+                           last?'\n':' ');
       if (!mod2sparse_at_end(e)) 
       { e = mod2sparse_next_in_row(e);
       }
@@ -128,9 +138,11 @@ int main
 
   for (j = 0; j<N; j++)
   { e = mod2sparse_first_in_col(H,j);
-    for (k = 0; k<mxcw; k++)
-    { fprintf (af, "%d%c", mod2sparse_at_end(e)?0:mod2sparse_row(e)+1,
-                           k==mxcw-1?'\n':' ');
+    last = 0;
+    for (k = 0; !last; k++)
+    { last = nozeros ? k==cw[j]-1 : k==mxcw-1;
+      fprintf (af, "%d%c", mod2sparse_at_end(e)?0:mod2sparse_row(e)+1,
+                           last?'\n':' ');
       if (!mod2sparse_at_end(e)) 
       { e = mod2sparse_next_in_col(e);
       }
@@ -149,6 +161,6 @@ int main
 /* PRINT USAGE MESSAGE AND EXIT. */
 
 void usage(void)
-{ fprintf(stderr,"Usage: pchk-to-alist [ -t ] pchk-file alist-file\n");
+{ fprintf(stderr,"Usage: pchk-to-alist [ -t ] [ -z ] pchk-file alist-file\n");
   exit(1);
 }
