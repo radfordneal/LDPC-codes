@@ -132,7 +132,7 @@ check matrix from alist format to the sparse matrix format used by
 this software.
 
 <BLOCKQUOTE><PRE>
-alist-to-pchk <I>alist-file pchk-file</I>
+alist-to-pchk [ -t ] <I>alist-file pchk-file</I>
 </PRE></BLOCKQUOTE>
 
 <P>Converts a parity check matrix in 
@@ -141,12 +141,16 @@ format</A> stored in the file named <TT><I>alist-file</I></TT> to
 the sparse matrix format used by this software, storing it in the
 file named <TT><I>pchk-file</I></TT>.
 
+<P>If the <B>-t</B> option is given, the transpose of the parity check
+matrix in <TT><I>alist-file</I></TT> is stored in the
+<TT><I>pchk-file</I></TT>.
+
 
 <P><A NAME="pchk-to-alist"><HR><B>pchk-to-alist</B>: Convert a parity
 check matrix to alist format.
 
 <BLOCKQUOTE><PRE>
-pchk-to-alist <I>pchk-file alist-file</I>
+pchk-to-alist [ -t ] <I>pchk-file alist-file</I>
 </PRE></BLOCKQUOTE>
 
 <P>Converts a parity check matrix stored in the sparse matrix format
@@ -154,6 +158,9 @@ used by this software, in the file named <TT><I>pchk-file</I></TT>, to
 the <A
 HREF="http://www.inference.phy.cam.ac.uk/mackay/codes/alist.html">alist
 format</A>, storing it in the file named <TT><I>alist-file</I></TT>.
+
+<P>If the <B>-t</B> option is given, the transpose of the parity check
+matrix is converted to alist format.  
 
 
 <P><A NAME="print-pchk"><HR><B>print-pchk</B>: Print a parity check matrix.
