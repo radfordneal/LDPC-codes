@@ -72,6 +72,8 @@ int main
     HT = H;
     H = mod2sparse_allocate(N,M);
     mod2sparse_transpose(HT,H);
+    M = mod2sparse_rows(H);
+    N = mod2sparse_cols(H);
   }
 
   af = open_file_std(alist_file,"wb");
