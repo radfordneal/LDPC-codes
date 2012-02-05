@@ -145,6 +145,13 @@ file named <TT><I>pchk-file</I></TT>.
 matrix in <TT><I>alist-file</I></TT> is stored in the
 <TT><I>pchk-file</I></TT>.
 
+<P>Any zeros indexes in the alist file are ignored, so that alist files
+with zero padding (as required in the specification) are accepted,
+but files without this zero padding are also accepted.  Newlines
+are ignored by <TT>alist-to-pchk</TT>, so no error is reported if
+the set of indexes in a row or column description are not those
+on a single line.
+
 
 <P><A NAME="pchk-to-alist"><HR><B>pchk-to-alist</B>: Convert a parity
 check matrix to alist format.
@@ -167,7 +174,9 @@ the same for each row or each column, the alist format specification
 says that the list of indexes of 1s for each row or column should
 be padded with zeros to the maximum number of indexes.  By default,
 <TT>pchk-to-alist</TT> does this, but output of these 0s can be
-suppressed by specifying the <B>-z</B> option.
+suppressed by specifying the <B>-z</B> option.  (The <TT>alist-to-pchk</TT>
+program will accept alist files produced with or without the <B>-z</B>
+option.)
 
 
 <P><A NAME="print-pchk"><HR><B>print-pchk</B>: Print a parity check matrix.

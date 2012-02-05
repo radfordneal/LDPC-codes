@@ -44,6 +44,7 @@ int main
   int *rw, *cw;
   int i, j, k;
   int tot, trans;
+  int nxt;
 
   trans = 0;
 
@@ -98,42 +99,32 @@ int main
 
   H = mod2sparse_allocate(M,N);
 
+  do { if (fscanf(af,"%d",&nxt)!=1) nxt = -1; } while (nxt==0);
+      
   tot = 0;
 
   for (i = 0; i<M; i++)
-  { for (k = 0; k<mxrw; k++)
-    { if (fscanf(af,"%d",&j)!=1 || j<0 || j>N
-       || k>=rw[i] && j!=0 || k<rw[i] && j==0)
+  { for (k = 0; k<rw[i]; k++)
+    { if (nxt<=0 || nxt>N || mod2sparse_find(H,i,nxt-1))
       { bad_alist_file();
       }
-      if (j==0) continue;
-      if (mod2sparse_find(H,i,j-1))
-      { bad_alist_file();
-      }
-      mod2sparse_insert(H,i,j-1);
+      mod2sparse_insert(H,i,nxt-1);
       tot += 1;
+      do { if (fscanf(af,"%d",&nxt)!=1) nxt = -1; } while (nxt==0);
     }
   }
 
   for (j = 0; j<N; j++)
-  { for (k = 0; k<mxcw; k++)
-    { if (fscanf(af,"%d",&i)!=1 || i<0 || i>M
-       || k>=cw[j] && i!=0 || k<cw[j] && i==0)
-      { bad_alist_file();
-      }
-      if (i==0) continue;
-      if (!mod2sparse_find(H,i-1,j))
+  { for (k = 0; k<cw[j]; k++)
+    { if (nxt<=0 || nxt>M || !mod2sparse_find(H,nxt-1,j))
       { bad_alist_file();
       }
       tot -= 1;
+      do { if (fscanf(af,"%d",&nxt)!=1) nxt = -1; } while (nxt==0);
     }
   }
 
-  if (tot!=0)
-  { bad_alist_file();
-  }
-
-  if (fscanf(af,"%d",&i)==1 || !feof(af))
+  if (tot!=0 || nxt!=-1 || !feof(af))
   { bad_alist_file();
   }
 

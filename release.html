@@ -31,6 +31,9 @@ and future releases can be obtained via
      row and column indexes that pad up to the maximum number used.
 <LI> Documented the previously undocumented -t options for pchk-to-alist
      and alist-to-pchk.
+<LI> Changed alist-to-pchk so that it no longer requires zero indexes
+     that pad out to the maximum needed for a row or column (thanks
+     to Monica Kolb for suggesting this).
 <LI> Changed mod2word type in mod2dense.c to uint32_t, to avoid
      wasted space when long is 64 bits (thanks to Mathieu Cunche 
      and Vincent Roca for suggesting this).
