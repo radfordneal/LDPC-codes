@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Copy the LPDC programs to the directory specified.  The program file
+# might be the name of the program, or (eg, on Cygwin) the name of the
+# program with .exe appended.
+
+if [ x$1 == x -o x$2 != x ]; then
+    echo Usage: LDPC-install bin-directory
+    exit 1
+fi
+
+echo Installing LPDC programs in $1
+
+mkdir -p $1
+
+for prog in make-pchk alist-to-pchk pchk-to-alist \
+            make-ldpc print-pchk make-gen print-gen \
+            rand-src encode transmit decode extract verify; do
+    if [ -f $prog ]; then
+        cp $prog $1
+    elif [ -f $prog.exe ]; then
+        cp $prog.exe $1
+    else
+        echo No program $prog to install
+    fi
+done
+
+echo Done
