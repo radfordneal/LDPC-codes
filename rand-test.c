@@ -88,6 +88,7 @@ main
   if      (strcmp(generator,"uniform")==0)  np = 0;
   else if (strcmp(generator,"uniopen")==0)  np = 0;
   else if (strcmp(generator,"int")==0)      np = 1;
+  else if (strcmp(generator,"poisson")==0)  np = 1;
   else if (strcmp(generator,"gaussian")==0) np = 0;
   else if (strcmp(generator,"exp")==0)      np = 0;
   else if (strcmp(generator,"cauchy")==0)   np = 0;
@@ -145,6 +146,10 @@ main
   { tmean = (p1-1)/2;
     tvariance = p1*p1/3.0 - p1/2.0 + 1/6.0 - tmean*tmean;
   }
+  else if (strcmp(generator,"poisson")==0) 
+  { tmean = p1;
+    tvariance = p1;
+  }
   else if (strcmp(generator,"gaussian")==0) 
   { tmean = 0;
     tvariance = 1;
@@ -184,6 +189,7 @@ main
     if      (strcmp(generator,"uniform")==0)  x = rand_uniform();
     else if (strcmp(generator,"uniopen")==0)  x = rand_uniopen();
     else if (strcmp(generator,"int")==0)      x = rand_int((int)p1);
+    else if (strcmp(generator,"poisson")==0)  x = rand_poisson(p1);
     else if (strcmp(generator,"gaussian")==0) x = rand_gaussian();
     else if (strcmp(generator,"exp")==0)      x = rand_exp();
     else if (strcmp(generator,"cauchy")==0)   x = rand_cauchy();
