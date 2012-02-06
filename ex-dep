@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# Examples of a how a parity check matrix with dependent rows is handled.
+
+set -e  # Stop if an error occurs
+set -v  # Echo commands as they are read
+
+# CODE 1
+
+make-pchk ex-dep.pchk 4 6 0:0 0:5 3:1 3:2
+print-pchk -d ex-dep.pchk
+echo 00011011 >ex-dep.src
+
+# SPARSE REPRESENTATION
+
+make-gen ex-dep.pchk ex-dep.gen sparse
+print-gen -d ex-dep.gen
+encode ex-dep.pchk ex-dep.gen ex-dep.src ex-dep.enc; cat ex-dep.enc
+verify ex-dep.pchk ex-dep.enc ex-dep.gen ex-dep.src
+
+# DENSE REPRESENTATION
+
+make-gen ex-dep.pchk ex-dep.gen dense
+print-gen -d ex-dep.gen
+encode ex-dep.pchk ex-dep.gen ex-dep.src ex-dep.enc; cat ex-dep.enc
+verify ex-dep.pchk ex-dep.enc ex-dep.gen ex-dep.src
+
+# MIXED REPRESENTATION
+
+make-gen ex-dep.pchk ex-dep.gen mixed
+print-gen -d ex-dep.gen
+encode ex-dep.pchk ex-dep.gen ex-dep.src ex-dep.enc; cat ex-dep.enc
+verify ex-dep.pchk ex-dep.enc ex-dep.gen ex-dep.src
+
+# CODE 2
+
+make-pchk ex-dep.pchk 4 5 0:0 0:1 1:1 1:2 2:0 2:2 3:3 3:4
+print-pchk -d ex-dep.pchk
+echo 01 >ex-dep.src
+
+# SPARSE REPRESENTATION
+
+make-gen ex-dep.pchk ex-dep.gen sparse
+print-gen -d ex-dep.gen
+encode ex-dep.pchk ex-dep.gen ex-dep.src ex-dep.enc; cat ex-dep.enc
+verify ex-dep.pchk ex-dep.enc ex-dep.gen ex-dep.src
+
+# DENSE REPRESENTATION
+
+make-gen ex-dep.pchk ex-dep.gen dense
+print-gen -d ex-dep.gen
+encode ex-dep.pchk ex-dep.gen ex-dep.src ex-dep.enc; cat ex-dep.enc
+verify ex-dep.pchk ex-dep.enc ex-dep.gen ex-dep.src
+
+# MIXED REPRESENTATION
+
+make-gen ex-dep.pchk ex-dep.gen mixed
+print-gen -d ex-dep.gen
+encode ex-dep.pchk ex-dep.gen ex-dep.src ex-dep.enc; cat ex-dep.enc
+verify ex-dep.pchk ex-dep.enc ex-dep.gen ex-dep.src

@@ -1,0 +1,124 @@
+#!/bin/sh
+
+# These tests investigate what happens when the wrong model is used for
+# decoding.  A (1800,1000) LDPC code with 3 check per bit is used.
+# Testing is done by transmitting random messages.  Decoding is done using 
+# a maximum of 100 iterations of probability propagation.
+#
+# The first set of tests compares decoding of messages sent through an 
+# AWGN channel using the correct AWGN model with sigma=0.90 to decoding 
+# using AWGN models with incorrect values for sigma and to decoding 
+# using AWLN models with varying width parameters for the logistic noise
+# distribution.  
+#
+# A second set of tests compares decoding of messages sent through an
+# AWLN channel using the correct AWLN model with width=0.50 to decoding
+# using AWLN models with incorrect values for width and to decoding 
+# using AWGN models with varying sigma parameters.
+
+set -e  # Stop if an error occurs
+set -v  # Echo commands as they are read
+
+make-ldpc ex-wrong-model.pchk 1000 1800 1 evenboth 3 no4cycle
+make-gen  ex-wrong-model.pchk ex-wrong-model.gen dense
+rand-src  ex-wrong-model.src 1 800x1000
+encode    ex-wrong-model.pchk ex-wrong-model.gen ex-wrong-model.src \
+          ex-wrong-model.enc
+
+# FIRST SET OF TESTS, TRANSMITTING THROUGH AWGN CHANNEL WITH SIGMA=0.90
+
+transmit  ex-wrong-model.enc ex-wrong-model.rec 1 awgn 0.90
+
+# DECODING WITH CORRECT AWGN NOISE MODEL, SIGMA=0.90
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.90 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.95
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.95 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.85
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.85 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.40
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.40 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.45
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.45 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.50
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.50 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.55
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.55 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.60
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.60 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.65
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.65 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# SECOND SET OF TESTS, TRANSMITTING THROUGH AWLN CHANNEL WITH WIDTH=0.50
+
+transmit  ex-wrong-model.enc ex-wrong-model.rec 1 awln 0.50
+
+# DECODING WITH CORRECT AWLN NOISE MODEL, WIDTH=0.50
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.50 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.55
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.55 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWLN NOISE MODEL, WIDTH=0.45
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awln 0.45 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.80
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.80 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.85
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.85 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.90
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.90 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=0.95
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 0.95 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=1.00
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 1.00 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 
+
+# DECODING WITH AWGN NOISE MODEL, SIGMA=1.05
+
+decode    ex-wrong-model.pchk ex-wrong-model.rec - awgn 1.05 prprp 100 \
+ | verify ex-wrong-model.pchk - ex-wrong-model.gen ex-wrong-model.src 

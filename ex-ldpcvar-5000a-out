@@ -1,0 +1,54 @@
+
+make-ldpc ex-ldpcvar-5000a.pchk 5000 10000 2 evenboth 2x2/7x3/1x7 no4cycle
+Eliminated 46 cycles of length four by moving checks within column
+make-gen  ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen dense
+Number of 1s per check in Inv(A) X B is 1437.1
+rand-src  ex-ldpcvar-5000a.src 1 5000x100
+
+# NOISE STANDARD DEVIATION 0.80, Eb/N0 = 1.94 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.80 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.80 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 100 valid.  Average 11.3 iterations, 11% bit changes
+Block counts: tot 100, with chk errs 0, with src errs 0, both 0
+Bit error rate (on message bits only): 0.000e+00
+
+# NOISE STANDARD DEVIATION 0.85, Eb/N0 = 1.41 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.85 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.85 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 100 valid.  Average 18.0 iterations, 12% bit changes
+Block counts: tot 100, with chk errs 0, with src errs 0, both 0
+Bit error rate (on message bits only): 0.000e+00
+
+# NOISE STANDARD DEVIATION 0.90, Eb/N0 = 0.92 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.90 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.90 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 65 valid.  Average 119.8 iterations, 12% bit changes
+Block counts: tot 100, with chk errs 35, with src errs 35, both 35
+Bit error rate (on message bits only): 2.438e-02
+
+# NOISE STANDARD DEVIATION 0.95, Eb/N0 = 0.45 dB
+
+encode      ex-ldpcvar-5000a.pchk ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src - \
+ | transmit - - 1 awgn 0.95 \
+ | decode   ex-ldpcvar-5000a.pchk - - awgn 0.95 prprp 250 \
+ | verify   ex-ldpcvar-5000a.pchk - ex-ldpcvar-5000a.gen ex-ldpcvar-5000a.src
+Encoded 100 blocks, source block size 5000, encoded block size 10000
+Transmitted 1000000 bits
+Decoded 100 blocks, 0 valid.  Average 250.0 iterations, 9% bit changes
+Block counts: tot 100, with chk errs 100, with src errs 100, both 100
+Bit error rate (on message bits only): 1.017e-01

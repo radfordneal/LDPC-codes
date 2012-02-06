@@ -1,0 +1,57 @@
+
+make-ldpc ex-ldpc36-1000a.pchk 1000 2000 1 evenboth 3 no4cycle
+Eliminated 24 cycles of length four by moving checks within column
+make-gen  ex-ldpc36-1000a.pchk ex-ldpc36-1000a.gen dense
+Number of 1s per check in Inv(A) X B is 400.3
+rand-src  ex-ldpc36-1000a.src 1 1000x100
+encode    ex-ldpc36-1000a.pchk ex-ldpc36-1000a.gen ex-ldpc36-1000a.src \
+          ex-ldpc36-1000a.enc
+Encoded 100 blocks, source block size 1000, encoded block size 2000
+
+# NOISE STANDARD DEVIATION 0.80, Eb/N0 = 1.94 dB
+
+transmit ex-ldpc36-1000a.enc ex-ldpc36-1000a.rec 1 awgn 0.80
+Transmitted 200000 bits
+decode   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.rec ex-ldpc36-1000a.dec awgn 0.80\
+         prprp 250
+Decoded 100 blocks, 100 valid.  Average 10.8 iterations, 11% bit changes
+verify   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.dec ex-ldpc36-1000a.gen \
+         ex-ldpc36-1000a.src 
+Block counts: tot 100, with chk errs 0, with src errs 0, both 0
+Bit error rate (on message bits only): 0.000e+00
+
+# NOISE STANDARD DEVIATION 0.85, Eb/N0 = 1.41 dB
+
+transmit ex-ldpc36-1000a.enc ex-ldpc36-1000a.rec 1 awgn 0.85
+Transmitted 200000 bits
+decode   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.rec ex-ldpc36-1000a.dec awgn 0.85\
+         prprp 250
+Decoded 100 blocks, 88 valid.  Average 52.2 iterations, 12% bit changes
+verify   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.dec ex-ldpc36-1000a.gen \
+         ex-ldpc36-1000a.src 
+Block counts: tot 100, with chk errs 12, with src errs 12, both 12
+Bit error rate (on message bits only): 7.490e-03
+
+# NOISE STANDARD DEVIATION 0.90, Eb/N0 = 0.92 dB
+
+transmit ex-ldpc36-1000a.enc ex-ldpc36-1000a.rec 1 awgn 0.90
+Transmitted 200000 bits
+decode   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.rec ex-ldpc36-1000a.dec awgn 0.90\
+         prprp 250
+Decoded 100 blocks, 19 valid.  Average 209.4 iterations, 11% bit changes
+verify   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.dec ex-ldpc36-1000a.gen \
+         ex-ldpc36-1000a.src 
+Block counts: tot 100, with chk errs 81, with src errs 81, both 81
+Bit error rate (on message bits only): 6.529e-02
+
+# NOISE STANDARD DEVIATION 0.95, Eb/N0 = 0.45 dB
+
+transmit ex-ldpc36-1000a.enc ex-ldpc36-1000a.rec 1 awgn 0.95
+Transmitted 200000 bits
+decode   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.rec ex-ldpc36-1000a.dec awgn 0.95\
+         prprp 250
+Decoded 100 blocks, 1 valid.  Average 248.0 iterations, 9% bit changes
+verify   ex-ldpc36-1000a.pchk ex-ldpc36-1000a.dec ex-ldpc36-1000a.gen \
+         ex-ldpc36-1000a.src
+Block counts: tot 100, with chk errs 99, with src errs 99, both 99
+Bit error rate (on message bits only): 1.055e-01

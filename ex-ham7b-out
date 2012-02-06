@@ -1,0 +1,15 @@
+  
+make-pchk ex-ham7b.pchk 3 7 0:0 0:3 0:4 0:5 1:1 1:3 1:4 1:6 2:2 2:4 2:5 2:6
+make-gen  ex-ham7b.pchk ex-ham7b.gen dense
+Number of 1s per check in Inv(A) X B is 3.0
+rand-src  ex-ham7b.src 1 4x1000
+encode    ex-ham7b.pchk ex-ham7b.gen ex-ham7b.src ex-ham7b.enc
+Encoded 1000 blocks, source block size 4, encoded block size 7
+transmit  ex-ham7b.enc ex-ham7b.rec 1 bsc 0.05
+Transmitted 7000 bits
+decode    ex-ham7b.pchk ex-ham7b.rec ex-ham7b.dec bsc 0.05 enum-bit ex-ham7b.gen
+Decoded 1000 blocks, 1000 valid.  Average 16.0 iterations, 4% bit changes
+verify    ex-ham7b.pchk ex-ham7b.dec ex-ham7b.gen ex-ham7b.src
+Block counts: tot 1000, with chk errs 0, with src errs 47, both 0
+Bit error rate (on message bits only): 2.000e-02
+extract   ex-ham7b.gen ex-ham7b.dec ex-ham7b.ext

@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Example of a (10000,5000) LDPC code with 3 checks per bit and 6 bits per 
+# check, tested on Additive White Gaussian Noise channels with noise standard 
+# deviations varying from 0.80 to 0.95.
+#
+# Testing is done by transmitting random messages, with pipes used so that
+# intermediate files are avoided.  Decoding is done using a maximum of 250
+# iterations of probability propagation.
+
+set -e  # Stop if an error occurs
+set -v  # Echo commands as they are read
+
+make-ldpc ex-ldpc36-5000a.pchk 5000 10000 2 evenboth 3 no4cycle
+make-gen  ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen dense
+rand-src  ex-ldpc36-5000a.src 1 5000x100
+
+# NOISE STANDARD DEVIATION 0.80, Eb/N0 = 1.94 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.80 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.80 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src
+
+# NOISE STANDARD DEVIATION 0.85, Eb/N0 = 1.41 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.85 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.85 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src
+
+# NOISE STANDARD DEVIATION 0.90, Eb/N0 = 0.92 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.90 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.90 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src
+
+# NOISE STANDARD DEVIATION 0.95, Eb/N0 = 0.45 dB
+
+encode      ex-ldpc36-5000a.pchk ex-ldpc36-5000a.gen ex-ldpc36-5000a.src - \
+ | transmit - - 1 awgn 0.95 \
+ | decode   ex-ldpc36-5000a.pchk - - awgn 0.95 prprp 250 \
+ | verify   ex-ldpc36-5000a.pchk - ex-ldpc36-5000a.gen ex-ldpc36-5000a.src

@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Example of how an LDPC code can be encoded using using sparse,
+# dense, and mixed representations of the generator matrix.  The dense
+# and mixed representations are based on the same set of message bits
+# as the sparse method with minprod heuristic.  This allows the correctness 
+# of these methods to be checked by verifying that they all produce the same 
+# result when encoding random messages.  The results are also checked by 
+# 'verify'.
+#
+# A (400,200) LDPC code with 3 checks per bit is used for the test.
+
+set -e  # Stop if an error occurs
+set -v  # Echo commands as they are read
+
+make-ldpc ex-ldpc-encode.pchk 200 400 1 evenboth 3 
+
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genf sparse first
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genc sparse mincol
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genp sparse minprod
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.gend dense ex-ldpc-encode.genp
+make-gen  ex-ldpc-encode.pchk ex-ldpc-encode.genm mixed ex-ldpc-encode.genp
+
+rand-src  ex-ldpc-encode.src 1 200x10
+
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genf ex-ldpc-encode.src \
+          ex-ldpc-encode.encf
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genc ex-ldpc-encode.src \
+          ex-ldpc-encode.encc
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genp ex-ldpc-encode.src \
+          ex-ldpc-encode.encp
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.gend ex-ldpc-encode.src \
+          ex-ldpc-encode.encd
+encode    ex-ldpc-encode.pchk ex-ldpc-encode.genm ex-ldpc-encode.src \
+          ex-ldpc-encode.encm
+
+cmp ex-ldpc-encode.encp ex-ldpc-encode.encd
+cmp ex-ldpc-encode.encp ex-ldpc-encode.encm
+
+verify    ex-ldpc-encode.pchk ex-ldpc-encode.encf ex-ldpc-encode.genf \
+          ex-ldpc-encode.src
+verify    ex-ldpc-encode.pchk ex-ldpc-encode.encc ex-ldpc-encode.genc \
+          ex-ldpc-encode.src
+verify    ex-ldpc-encode.pchk ex-ldpc-encode.encp ex-ldpc-encode.genp \
+          ex-ldpc-encode.src
