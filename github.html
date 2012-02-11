@@ -8,17 +8,55 @@
 
 <P>Starting with the Version of yyyy-mm-dd, the source code repository
 for this software is hosted by <A HREF="http://github.com">Github</A>,
-located at <A
-HREF="http://radfordneal.github.com/LDPC-codes">http://radfordneal.github.com/LDPC-code</A>.
+and is located at <A
+HREF="http://github.com/radfordneal/LDPC-codes">http://github.com/radfordneal/LDPC-codes</A>.
 This repository includes the annotated log of changes made since the
 Version of 2006-02-08.
 
-<P>To obtain a copy of the source code repository, issue the following
-command (in a Unix/Linux/Cygwin environment):
+<P>You can use the facilities at Github to obtain the source-code
+repository, report bugs, and contribute to discussion.
+
+<H2>Obtaining the source repository, and modifying it</H2>
+
+<P>To obtain a copy of the source-code repository, issue the following
+command (in a Unix/Linux/Cygwin environment that has git installed):
 <BLOCKQUOTE><PRE>
-git clone git:radfordneal.github.com/LDPC-codes
+git clone git://github.com/radfordneal/LDPC-codes
 </PRE></BLOCKQUOTE>
-This will retrieve the current development version.  
+This will retrieve the current state of the software, storing it
+in the directory <TT>LDPC-codes</TT>, which you should ensure does not
+exist before issuing this command above.
+
+<P>Note that if all you want to do is compile and use the current
+version, you can instead download the source without development
+history as described in the <A HREF="install.html">installation 
+instructions</A>. 
+
+<P>The <TT>LDPC-codes</TT> directory created by the <TT>git clone</TT>
+command is a git repository, which can be manipulated with the various
+forms of the <TT>git</TT> command, which are documented, for example,
+<A HREF="http://git-scm.com/documentation">here</A>.  
+
+<P>Each stable version of the software is a separate branch of the
+repository.  The documentation on the most recent stable version is in
+the "gh-pages" branch. The current development version is on the
+"master" branch.
+
+<P>You can make local changes to your copy of the repository, and use
+the modified software.  If you wish, you can ask me
+(radfordneal@gmail.com) to include your changes in a new release, or,
+if you register as a <A HREF="http://github.com">Github</A> user, you can set
+up your own fork of the software.
+
+<H2>Reporting Bugs</H2>
+
+You can use the Github "issues" facility to report bugs in the
+software.  You have to register as a <A HREF="github.com">Github</A>
+user to do this (which is free).  You can then go <A
+HREF="https://github.com/radfordneal/LDPC-codes/issues">here</A> and
+click on "New issue" to report a bug.   You can also use this 
+facility to suggest new features. I may not have time to
+implement them, but perhaps someone else will.
 
 <HR>
 
