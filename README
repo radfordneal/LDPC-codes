@@ -1,1 +1,5 @@
+This is a collection of programs and modules, written in C, that
+support research and education concerning Low Density Parity Check
+(LDPC) codes.
+
 See index.html in this directory for an index to all the documentation.
