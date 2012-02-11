@@ -4,31 +4,31 @@
 
 </HEAD><BODY>
 
-
 <H1> Installing the LDPC Software </H1>
 
 The LDPC software is written in C, and may well work with any C
-compiler, though it has been tested only in a Unix/Linux environment,
-and in the <A HREF="http://www.cygwin.com">cygwin</A> Unix environment
-that runs under Microsoft Windows.  The installation instructions
-below assume that you are using a Unix-like system.
+compiler, though it has been tested only with gcc, in a Unix/Linux
+environment, and in the <A HREF="http://www.cygwin.com">cygwin</A>
+Unix-like environment that runs under Microsoft Windows.  The
+installation instructions below assume that you are using a Unix-like
+system.
 
 <P>All the software, including the documentation you are viewing here,
-is contained in a Unix tar file, which you can download by clicking one
+is contained in a tar file, which you can download by clicking one
 of the options below:
 <BLOCKQUOTE>
- <A HREF="http://www.cs.utoronto.ca/~radford/ftp/LDPC-2006-02-08/LDPC-2006-02-08.tar">Tar 
+ <A HREF="http://www.cs.utoronto.ca/~radford/ftp/LDPC-yyyy-mm-dd/LDPC-yyyy-mm-dd.tar">Tar 
    file of LDPC software</A> (0.9 Megabytes)<BR>
- <A HREF="http://www.cs.utoronto.ca/~radford/ftp/LDPC-2006-02-08/LDPC-2006-02-08.tar.gz">Gzipped
+ <A HREF="http://www.cs.utoronto.ca/~radford/ftp/LDPC-yyyy-mm-dd/LDPC-yyyy-mm-dd.tar.gz">Gzipped
    tar file of LDPC software</A> (0.4 Megabytes)
 </BLOCKQUOTE>
 
 <P>Once you obtain the tar file (and uncompress it with gunzip if
 necessary), you should extract the files with the following Unix command:
 <BLOCKQUOTE><PRE>
-tar xf LDPC-2006-02-08.tar
+tar xf LDPC-yyyy-mm-dd.tar
 </PRE></BLOCKQUOTE>
-This will create a directory called <TT>LDPC-2006-02-08</TT>, and place
+This will create a source directory called <TT>LDPC-yyyy-mm-dd</TT>, and place
 all the source, documentation, and other files in this directory.  
 
 <P>If you prefer for this directory to be called something else,
@@ -42,17 +42,24 @@ newly-created directory, and type
 make
 </PRE></BLOCKQUOTE>
 If all goes well, this should compile all the programs (except for some
-test programs).  
+test programs, which can be compiled with <TT>make test</TT>).  You
+may want to edit the file <TT>Makefile</TT> before running <TT>make</TT>
+in order to change compilation options, such as the optimization level.
 
-<P>The sub-directory <TT>bin</TT> contains symbolic links to all these
-programs.  You might want to place it in the PATH variable used by
-your shell to find programs.
+<P>You can run the programs from this source directory, or you can copy
+them to some other directory by running the <TT>LDPC-install</TT>
+shell file.  For instance, to install them in a bin directory in your
+home directory, do the following:
+<BLOCKQUOTE><PRE>
+./LDPC-install $HOME/bin
+</PRE></BLOCKQUOTE>
 
-<P>The LDPC directory contains a copy of all the HTML files
+<P>The source directory contains a copy of all the HTML files
 documenting the software, such as the one you are reading now, with
-the file <TT>index.html</TT> being the starting point.  I recommended
-that you use this local copy when referring to the documentation, rather
-than get it from my web page.  Just tell your browser to open the URL
+the file <TT>index.html</TT> being the starting point.  It is probably
+best to use this local copy when referring to the documentation, rather
+than get it off the web, since that insures that the documentation is
+for the version that you are using.  Just tell your browser to open the URL
 <BLOCKQUOTE><PRE>
 file:<I>path-to-software</I>/index.html
 </PRE></BLOCKQUOTE>
