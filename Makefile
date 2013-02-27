@@ -21,7 +21,7 @@
 all: progs tests
 
 progs = make-pchk alist-to-pchk pchk-to-alist make-ldpc print-pchk	\
- make-gen print-gen rand-src encode transmit decode extract verify 
+ make-gen print-gen rand-src encode transmit decode extract verify
 
 progs: $(progs)
 
@@ -35,39 +35,13 @@ CFLAGS += -g
 LOADLIBES += -lm
 LDFLAGS += -g
 
+ofiles = alloc.o blockio.o channel.o check.o dec.o distrib.o enc.o	\
+  intio.o mod2convert.o mod2dense.o mod2sparse.o open.o rand.o rcode.o
+
 RAND_FILE = $$(pwd)/randfile
 rand.o: CPPFLAGS+=-DRAND_FILE=\"$(RAND_FILE)\"
 
-make-pchk: make-pchk.o mod2sparse.o mod2dense.o mod2convert.o rcode.o	\
-  alloc.o intio.o open.o
-alist-to-pchk: alist-to-pchk.o mod2sparse.o mod2dense.o mod2convert.o	\
-  rcode.o alloc.o intio.o open.o
-pchk-to-alist: pchk-to-alist.o mod2sparse.o mod2dense.o mod2convert.o	\
-  rcode.o alloc.o intio.o open.o
-make-ldpc: make-ldpc.o mod2sparse.o mod2dense.o mod2convert.o rcode.o	\
-  rand.o alloc.o intio.o open.o distrib.o
-print-pchk: print-pchk.o mod2sparse.o mod2dense.o mod2convert.o rcode.o	\
-  rand.o alloc.o intio.o open.o
-make-gen: make-gen.o mod2sparse.o mod2dense.o mod2convert.o rcode.o	\
-  alloc.o intio.o open.o
-print-gen: print-gen.o mod2sparse.o mod2dense.o mod2convert.o rcode.o	\
-  rand.o alloc.o intio.o open.o
-rand-src: rand-src.o rand.o open.o
-encode: encode.o mod2sparse.o mod2dense.o mod2convert.o enc.o rcode.o	\
-  rand.o alloc.o intio.o blockio.o open.o
-transmit: transmit.o channel.o rand.o open.o
-decode: decode.o channel.o mod2sparse.o mod2dense.o mod2convert.o	\
-  enc.o check.o rcode.o rand.o alloc.o intio.o blockio.o dec.o open.o
-extract: extract.o mod2sparse.o mod2dense.o mod2convert.o rcode.o	\
-  alloc.o intio.o blockio.o open.o
-verify: verify.o mod2sparse.o mod2dense.o mod2convert.o check.o rcode.o	\
-  alloc.o intio.o blockio.o open.o
-
-mod2dense-test: mod2dense-test.o mod2dense.o alloc.o intio.o
-mod2sparse-test: mod2sparse-test.o mod2sparse.o alloc.o intio.o
-mod2convert-test: mod2convert-test.o mod2convert.o mod2dense.o		\
-  mod2sparse.o alloc.o intio.o rand.o open.o
-rand-test: rand-test.o rand.o
+$(progs) $(tests): $(ofiles)
 
 # CLEAN UP ALL PROGRAMS AND REMOVE ALL FILES PRODUCED BY TESTS AND EXAMPLES.
 
