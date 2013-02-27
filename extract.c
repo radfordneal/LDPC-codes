@@ -88,7 +88,7 @@ int main
        block boundary. */
 
     for (i = M; i<N; i++)
-    { putc("01"[cblk[cols[i]]],extf);
+    { putc("01"[(int)cblk[cols[i]]],extf);
     }
    
     putc('\n',extf);

@@ -24,7 +24,7 @@
 #include "mod2sparse.h"
 
 
-main(void)
+int main(void)
 {
   mod2sparse *m1, *m2, *m3, *m4;
   mod2sparse *s0, *s1, *s2, *s3, *s4;

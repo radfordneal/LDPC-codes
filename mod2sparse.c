@@ -1186,7 +1186,7 @@ int mod2sparse_decomp
       cc2 = 0;
       for (j = 0; j<N; j++)
       { cc3 = mod2sparse_count_col(B,j);
-        if (cc3>k || cc3==k && cc>0)
+        if (cc3>k || (cc3==k && cc>0))
         { if (cc3==k) cc -= 1;
           for (;;)
           { f = mod2sparse_first_in_col(B,j);

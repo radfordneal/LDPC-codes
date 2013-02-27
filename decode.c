@@ -257,7 +257,7 @@ int main
         }
         goto done;
       }
-      if (c<1 || channel==BSC && bsc_data[i]!=0 && bsc_data[i]!=1)
+      if (c<1 || (channel==BSC && bsc_data[i]!=0 && bsc_data[i]!=1))
       { fprintf(stderr,"File of received data is garbled\n");
         exit(1);
       }
@@ -341,7 +341,7 @@ int main
 
     /* Check for errors when writing. */
 
-    if (ferror(df) || pfile && ferror(pf))
+    if (ferror(df) || (pfile && ferror(pf)))
     { break;
     }
   }
