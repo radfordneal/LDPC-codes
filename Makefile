@@ -33,7 +33,6 @@ CFLAGS += -Wall -Wno-maybe-uninitialized
 CFLAGS += -O2
 CFLAGS += -g
 LOADLIBES += -lm
-LDFLAGS += -g
 
 ofiles = alloc.o blockio.o channel.o check.o dec.o distrib.o enc.o	\
   intio.o mod2convert.o mod2dense.o mod2sparse.o open.o rand.o rcode.o
