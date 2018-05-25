@@ -83,6 +83,11 @@ int channel_parse
     { return 2;
     }
   }
+  else if (strcmp(argv[0],"misc")==0 || strcmp(argv[0],"MISC")==0)
+  {
+    channel = MISC;
+    return 2;
+  }
   else
   { 
     return 0;
@@ -95,5 +100,5 @@ int channel_parse
 void channel_usage(void)
 {
   fprintf(stderr,
-    "Channel: bsc error-probability | awgn standard-deviation | awln width\n");
+    "Channel: bsc error-probability | awgn standard-deviation | awln width | misc\n");
 }
