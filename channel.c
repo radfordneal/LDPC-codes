@@ -100,5 +100,5 @@ int channel_parse
 void channel_usage(void)
 {
   fprintf(stderr,
-    "Channel: bsc error-probability | awgn standard-deviation | awln width | misc\n");
+    "Channel: bsc error-probability | awgn standard-deviation | awln width | misc 0.0\n");
 }
