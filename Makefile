@@ -66,6 +66,9 @@ progs:	modules
 	$(COMPILE) extract.c
 	$(LINK) extract.o mod2sparse.o mod2dense.o mod2convert.o \
 	   rcode.o alloc.o intio.o blockio.o open.o -lm -o extract
+	$(COMPILE) extract_systematic.c
+	$(LINK) extract_systematic.o mod2sparse.o mod2dense.o mod2convert.o \
+	   rcode.o alloc.o intio.o blockio.o open.o -lm -o extract_systematic
 	$(COMPILE) verify.c
 	$(LINK) verify.o mod2sparse.o mod2dense.o mod2convert.o check.o \
 	   rcode.o alloc.o intio.o blockio.o open.o -lm -o verify
@@ -113,4 +116,4 @@ clean:
 		make-pchk alist-to-pchk pchk-to-alist \
 		make-ldpc print-pchk make-gen print-gen \
 		rand-src encode transmit decode extract verify \
-		mod2dense-test mod2sparse-test mod2convert-test rand-test
+		mod2dense-test mod2sparse-test mod2convert-test rand-test extract_systematic
