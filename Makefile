@@ -21,7 +21,8 @@
 all: progs tests
 
 progs = make-pchk alist-to-pchk pchk-to-alist make-ldpc print-pchk	\
- make-gen print-gen rand-src encode transmit decode extract verify
+ make-gen print-gen rand-src encode transmit decode extract verify	\
+ extract_systematic
 
 progs: $(progs)
 

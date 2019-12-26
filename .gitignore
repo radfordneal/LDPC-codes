@@ -3,6 +3,7 @@
 /decode
 /encode
 /extract
+/extract_systematic
 /make-gen
 /make-ldpc
 /make-pchk
