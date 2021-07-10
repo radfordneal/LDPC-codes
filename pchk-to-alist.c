@@ -37,7 +37,7 @@ int main
 )
 {
   char *alist_file, *pchk_file;
-  FILE *af, *pf;
+  FILE *af;
   int mxrw, mxcw;
   int *rw, *cw;
   int i, j, k;

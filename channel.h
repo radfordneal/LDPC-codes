@@ -17,7 +17,7 @@
 /* TYPES OF CHANNEL, AND CHANNEL PARAMETERS.  The global variables declared
    here are located in channel.c. */
 
-typedef enum { BSC, AWGN, AWLN } channel_type;
+typedef enum { BSC, AWGN, AWLN , MISC} channel_type;
 
 extern channel_type channel;	/* Type of channel */
 

@@ -76,6 +76,10 @@ static rand_state state0;		/* Default state structure */
 
 static rand_state *state;		/* Pointer to current state */
 
+#ifndef RAND_FILE
+#error must set RAND_FILE
+#define RAND_FILE "/dev/urandom"	/* suggestion */
+#endif
 
 /* INITIALIZE MODULE.  Sets things up using the default state structure,
    set as if rand_seed had been called with a seed of one. */

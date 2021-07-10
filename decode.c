@@ -51,6 +51,7 @@ int main
 
   double *awn_data;		/* Places to store channel data */
   int *bsc_data;
+  double *misc_data;
 
   unsigned iters;		/* Unsigned because can be huge for enum */
   double tot_iter;		/* Double because can be huge for enum */
@@ -195,6 +196,10 @@ int main
     { awn_data = chk_alloc (N, sizeof *awn_data);
       break;
     }
+    case MISC:
+    { misc_data = chk_alloc (N, sizeof *misc_data);
+      break;
+    }
     default:
     { abort();
     }
@@ -248,6 +253,10 @@ int main
         { c = fscanf(rf,"%lf",&awn_data[i]); 
           break;
         }
+        case MISC:
+        { c = fscanf(rf,"%lf",&misc_data[i]); 
+          break;
+        }
         default: abort();
       }
       if (c==EOF) 
@@ -257,7 +266,7 @@ int main
         }
         goto done;
       }
-      if (c<1 || channel==BSC && bsc_data[i]!=0 && bsc_data[i]!=1)
+      if (c<1 || (channel==BSC && bsc_data[i]!=0 && bsc_data[i]!=1))
       { fprintf(stderr,"File of received data is garbled\n");
         exit(1);
       }
@@ -287,6 +296,12 @@ int main
           e = exp(-(awn_data[i]+1)/lwidth);
           d0 = 1 / ((1+e)*(1+1/e));
           lratio[i] = d1/d0;
+        }
+        break;
+      }
+      case MISC:
+      { for (i = 0; i<N; i++)
+        { lratio[i] = exp(-misc_data[i]);
         }
         break;
       }
@@ -341,7 +356,7 @@ int main
 
     /* Check for errors when writing. */
 
-    if (ferror(df) || pfile && ferror(pf))
+    if (ferror(df) || (pfile && ferror(pf)))
     { break;
     }
   }

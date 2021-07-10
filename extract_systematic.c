@@ -1,4 +1,4 @@
-/* EXTRACT.C - Extract message bits from coded blocks. */
+/* EXTRACT_SYSTEMATIC.C - Extract systematic positions. */
 
 /* Copyright (c) 1995-2012 by Radford M. Neal.
  *
@@ -36,21 +36,19 @@ int main
   char **argv
 )
 {
-  char *gen_file, *coded_file, *ext_file;
-  FILE *codef, *extf;
-  char *cblk;
+  char *gen_file, *systematic_file;
+  FILE *systematicf;
   int i;
 
   /* Look at arguments. */
 
   if (!(gen_file = argv[1])
-   || !(coded_file = argv[2])
-   || !(ext_file = argv[3])
-   || argv[4])
+   || !(systematic_file = argv[2])
+   || argv[3])
   { usage();
   }
 
-  if ((strcmp(gen_file,"-")==0) + (strcmp(coded_file,"-")==0) > 1)
+  if ((strcmp(gen_file,"-")==0) + (strcmp(systematic_file,"-")==0) > 1)
   { fprintf(stderr,"Can't read more than one stream from standard input\n");
     exit(1);
   }
@@ -60,42 +58,21 @@ int main
   
   read_gen(gen_file,1,1);
 
-  /* Open decoded file. */
 
-  codef = open_file_std(coded_file,"r");
-  if (codef==NULL)
-  { fprintf(stderr,"Can't open coded file: %s\n",coded_file);
+  /* Open file to write systematic positions to. */
+
+  systematicf = open_file_std(systematic_file,"w");
+  if (systematicf==NULL)
+  { fprintf(stderr,"Can't create file for systematic positions: %s\n",systematic_file);
     exit(1);
   }
 
-  /* Open file to write extracted message bits to. */
+   for (i = M; i<N; i++)
+   { fprintf(systematicf,"%d\n",cols[i]);
+   }
 
-  extf = open_file_std(ext_file,"w");
-  if (extf==NULL)
-  { fprintf(stderr,"Can't create file for extracted bits: %s\n",ext_file);
-    exit(1);
-  }
-
-  cblk = chk_alloc (N, sizeof *cblk);
-
-  for (;;)
-  { 
-    /* Read block from coded file. */
-
-    if (blockio_read(codef,cblk,N)==EOF) break;
-
-    /* Extract message bits and write to file, followed by newline to mark
-       block boundary. */
-
-    for (i = M; i<N; i++)
-    { putc("01"[(int)cblk[cols[i]]],extf);
-    }
-   
-    putc('\n',extf);
-  }
-
-  if (ferror(extf) || fclose(extf)!=0)
-  { fprintf(stderr,"Error writing extracted data to %s\n",ext_file);
+  if (ferror(systematicf) || fclose(systematicf)!=0)
+  { fprintf(stderr,"Error writing systematic positions to %s\n",systematic_file);
     exit(1);
   }
 
@@ -107,6 +84,6 @@ int main
 
 void usage(void)
 { fprintf(stderr,
-    "Usage: extract gen-file decoded-file extracted-file\n");
+    "Usage: extract gen-file systematic_file\n");
   exit(1);
 }

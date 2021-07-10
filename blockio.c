@@ -74,7 +74,7 @@ void blockio_write
 
   for (i = 0; i<l; i++)
   { if (b[i]!=0 && b[i]!=1) abort();
-    putc("01"[b[i]],f);
+    putc("01"[(int)b[i]],f);
   }
 
   putc('\n',f);
