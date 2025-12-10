@@ -26,7 +26,7 @@
 #include "rcode.h"
 
 
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -37,7 +37,7 @@ int main
 )
 {
   char *alist_file, *pchk_file;
-  FILE *af, *pf;
+  FILE *af;
   int mxrw, mxcw;
   int *rw, *cw;
   int i, j, k;
@@ -160,7 +160,7 @@ int main
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,"Usage: pchk-to-alist [ -t ] [ -z ] pchk-file alist-file\n");
   exit(1);
 }

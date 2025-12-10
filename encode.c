@@ -28,7 +28,7 @@
 #include "rcode.h"
 #include "enc.h"
 
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -188,7 +188,7 @@ int main
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,
    "Usage:  encode [ -f ] pchk-file gen-file source-file encoded-file\n");
   exit(1);

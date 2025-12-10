@@ -27,7 +27,7 @@
 #include "rcode.h"
 #include "check.h"
 
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -240,7 +240,7 @@ int main
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,
  "Usage: verify [ -t ] pchk-file decoded-file [ gen-file [ source-file ] ]\n");
   exit(1);

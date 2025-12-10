@@ -20,7 +20,7 @@
 #include "open.h"
 #include "rand.h"
 
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -80,7 +80,7 @@ int main
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,"Usage: rand-src source-file seed n-bits\n");
   exit(1);
 }

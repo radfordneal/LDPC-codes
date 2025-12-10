@@ -24,7 +24,7 @@
 #include "mod2sparse.h"
 
 
-main(void)
+int main(void)
 {
   mod2sparse *m1, *m2, *m3, *m4;
   mod2sparse *s0, *s1, *s2, *s3, *s4;
@@ -302,7 +302,7 @@ main(void)
   for (j = 0; j<7; j++) printf(" %d",cols[j]);
   printf("\n");
   printf("rows:");
-  for (i = 0; i<6; i++) printf(" %d",rows[i]);
+  for (i = 0; i<5; i++) printf(" %d",rows[i]);
   printf("\n\n");
   fflush(stdout);
 

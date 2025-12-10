@@ -26,7 +26,7 @@
 #include "mod2convert.h"
 #include "rcode.h"
 
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -88,7 +88,7 @@ int main
        block boundary. */
 
     for (i = M; i<N; i++)
-    { putc("01"[cblk[cols[i]]],extf);
+    { putc("01"[(int)cblk[cols[i]]],extf);
     }
    
     putc('\n',extf);
@@ -105,7 +105,7 @@ int main
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,
     "Usage: extract gen-file decoded-file extracted-file\n");
   exit(1);

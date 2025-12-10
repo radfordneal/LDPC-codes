@@ -24,7 +24,7 @@
 #include "mod2dense.h"
 
 
-main(void)
+int main(void)
 {
   mod2dense *m1, *m2, *m3, *m4;
   mod2dense *s0, *s1, *s2, *s3, *s4, *s5;

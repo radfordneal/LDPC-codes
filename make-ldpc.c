@@ -39,7 +39,7 @@ typedef enum
 
 void make_ldpc (int, make_method, distrib *, int);
 int *column_partition (distrib *, int);
-void usage (void);
+_Noreturn void usage (void);
 
 
 /* MAIN PROGRAM. */
@@ -138,7 +138,7 @@ int main
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,"Usage:  make-ldpc pchk-file n-checks n-bits seed method\n");
   fprintf(stderr,"Method: evencol  checks-per-col [ \"no4cycle\" ]\n");
   fprintf(stderr,"    or: evencol  checks-distribution [ \"no4cycle\" ]\n");

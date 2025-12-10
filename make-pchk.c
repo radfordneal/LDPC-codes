@@ -27,7 +27,7 @@
 #include "rcode.h"
 
 
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -87,7 +87,7 @@ int main
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,"Usage: make-pchk pchk-file n-checks n-bits row:col ...\n");
   exit(1);
 }

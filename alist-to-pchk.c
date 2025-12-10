@@ -28,7 +28,7 @@
 
 
 void bad_alist_file(void);
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -162,7 +162,7 @@ void bad_alist_file()
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf(stderr,"Usage: alist-to-pchk [ -t ] alist-file pchk-file\n");
   exit(1);
 }

@@ -134,7 +134,7 @@ unsigned enum_decode
 
   tpr = 0.0;
 
-  for (d = 0; d<=(1<<(N-M))-1; d++)
+  for (d = 0; d<=(1u<<(N-M))-1; d++)
   {
     /* Unpack message into source block. */
 

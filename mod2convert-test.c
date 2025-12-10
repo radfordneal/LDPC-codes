@@ -32,7 +32,7 @@
 #define N 100		/* Number of bits to set in test matrix (some may be
                            duplicates, leading to fewer 1's in matrix */
 
-main(void)
+int main(void)
 {
   mod2sparse *sm1, *sm2;
   mod2dense *dm1, *dm2;

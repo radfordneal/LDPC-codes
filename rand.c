@@ -76,6 +76,10 @@ static rand_state state0;		/* Default state structure */
 
 static rand_state *state;		/* Pointer to current state */
 
+#ifndef RAND_FILE
+#error must set RAND_FILE
+#define RAND_FILE "/dev/urandom"	/* suggestion */
+#endif
 
 /* INITIALIZE MODULE.  Sets things up using the default state structure,
    set as if rand_seed had been called with a seed of one. */
@@ -508,8 +512,7 @@ static int this_nrand48_r (unsigned short int xsubi[3],
 static int this_drand48_iterate (unsigned short int xsubi[3],
                             struct this_drand48_data *buffer);
 
-static long int this_nrand48 (xsubi)
-     unsigned short int xsubi[3];
+static long int this_nrand48 (unsigned short int xsubi[3])
 {
   long int result;
 
@@ -518,10 +521,9 @@ static long int this_nrand48 (xsubi)
   return result;
 }
 
-static int this_nrand48_r (xsubi, buffer, result)
-     unsigned short int xsubi[3];
-     struct this_drand48_data *buffer;
-     long int *result;
+static int this_nrand48_r (unsigned short int xsubi[3],
+			   struct this_drand48_data *buffer,
+			   long int *result)
 {
   /* Compute next state.  */
   if (this_drand48_iterate (xsubi, buffer) < 0)
@@ -536,9 +538,8 @@ static int this_nrand48_r (xsubi, buffer, result)
   return 0;
 }
 
-static int this_drand48_iterate (xsubi, buffer)
-     unsigned short int xsubi[3];
-     struct this_drand48_data *buffer;
+static int this_drand48_iterate (unsigned short int xsubi[3],
+				 struct this_drand48_data *buffer)
 {
   uint64_t X;
   uint64_t result;

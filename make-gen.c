@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "alloc.h"
 #include "intio.h"
@@ -29,7 +30,7 @@ typedef enum { Sparse, Dense, Mixed } make_method;      /* Ways of making it */
 
 void make_dense_mixed (FILE *, make_method, char *);     /* Procs to make it */
 void make_sparse (FILE *, mod2sparse_strategy, int, int);
-void usage(void);
+_Noreturn void usage(void);
 
 
 /* MAIN PROGRAM. */
@@ -337,7 +338,7 @@ void make_sparse
 
 /* PRINT USAGE MESSAGE AND EXIT. */
 
-void usage(void)
+_Noreturn void usage(void)
 { fprintf (stderr, 
    "Usage:  make-gen pchk-file gen-file method\n");
   fprintf (stderr, 
